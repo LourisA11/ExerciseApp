@@ -1,0 +1,58 @@
+<style>
+body {
+margin: 0;
+font-family: 'Segoe UI', sans-serif;
+background: #fff5fa;
+color: #333;
+}
+nav {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 2rem;
+background: #ff5fa2;
+}
+nav h1 { color: white; }
+nav ul { list-style: none; display: flex; gap: 1rem; }
+nav a { color: white; text-decoration: none; }
+.hero {
+height: 80vh;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+text-align: center;
+}
+.hero button {
+padding: 0.8rem 1.5rem;
+border: none;
+background: #ff5fa2;
+color: white;
+border-radius: 25px;
+}
+.page {
+padding: 4rem 2rem;
+}
+.cards {
+display: flex;
+gap: 1rem;
+}
+.cards li {
+background: white;
+padding: 1.5rem;
+border-radius: 12px;
+box-shadow: 0 10px 20px rgba(255,95,162,0.2);
+}
+form {
+max-width: 400px;
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+input, textarea {
+padding: 0.8rem;
+border-radius: 8px;
+border: 1px solid #ddd;
+}
+button { cursor: pointer; }
+</style>
