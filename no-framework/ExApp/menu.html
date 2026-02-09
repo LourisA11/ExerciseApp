@@ -1,0 +1,146 @@
+<html lang="en">
+
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PinkSite — Menu</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(190, 233, 190);
+}
+
+/*nav*/
+nav {
+    background-color: #35d715;
+    display: flex;
+    margin: 20px;
+}
+
+nav > div {
+    position: relative;  
+    margin-right: 20px;
+}
+
+nav label {
+    display: block;
+    padding: 8px 12px;
+    font-size: 18px;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+}
+
+
+nav > div:hover,
+nav > div:focus-within {
+    background-color: rgb(31, 216, 62);
+}
+
+nav > div > div {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 140px;
+    background-color: rgb(31, 216, 62);
+    flex-direction: column;
+    z-index: 10;
+}
+
+nav > div:hover > div,
+nav > div:focus-within > div {
+    display: flex;
+}
+
+nav a {
+    padding: 8px 12px;
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    white-space: nowrap;
+}
+
+nav a:hover {
+    background-color: rgb(39, 255, 64);
+}
+
+h2 {
+    margin-top: 0;
+}
+/*content*/
+.container{
+    padding: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.content {
+    border-left: #00ff00 solid 5px;
+    background-color: #fffefe;
+    margin: 15px 0;
+    padding: 15px;
+}
+.extra {
+    border-left: #eaff00 solid 5px;
+    background-color: #ffffff;
+    margin: 15px 0;
+    padding: 15px;
+}   
+
+</style>
+
+</head>
+
+    <nav>
+        <div>
+            <label tabindex="0">File</label> 
+            <div>
+                <a href="#" href>New</a>
+                <a href="#" href>Open</a>
+                <a href="#" href>Save</a>
+                <a href="#" href>Print</a>
+                <a href="#" href>Close</a>
+            </div>     
+        </div>
+        <div>
+            <label tabindex="0">Edit</label> 
+            <div>
+                <a href="#" href>Undo</a>
+                <a href="#" href>Redo</a>
+                <a href="#" href>Cut</a>
+                <a href="#" href>Copy</a>
+                <a href="#" href>Paste</a>
+                <a href="#" href>Delete</a>
+                <a href="#" href>Select All</a>
+            </div>     
+        </div>
+        <div>
+            <label tabindex="0">View</label> 
+            <div>
+                <a href="#" href>Zoom In</a>
+                <a href="#" href>Zoom Out</a>
+                <a href="#" href>Actual Size</a>
+                <a href="#" href>Fit Page</a>
+                <a href="#" href>Fit Width</a>
+                <a href="#" href>Fit Height</a>
+                <a href="#" href>Rotate Left</a>
+                <a href="#" href>Rotate Right</a>
+                <a href="#" href>Full Screen</a>
+            </div>
+    </nav>
+<body>
+    <div class="container">
+        <div class="content">
+        <h2>Instructions</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum fugiat aliquid voluptas corporis ipsam autem et. Debitis, vel iusto? Suscipit quidem eaque pariatur repellat nobis id, blanditiis deserunt nisi veniam.</p>
+        </div>
+    <div class = "extra">
+        <h2>Extra Credit</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum fugiat aliquid voluptas corporis ipsam autem et. Debitis, vel iusto? Suscipit quidem eaque pariatur repellat nobis id, blanditiis deserunt nisi veniam.</p>
+    </div>
+    </div>
+</body>
+</html>
