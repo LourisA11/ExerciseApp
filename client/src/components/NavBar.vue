@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import { mockUsers, authState } from '../store/userdata';
+import { mockUsers, authState } from '../store/userData';
 import '../assets/style.css'
 
 const isActive = ref(false);

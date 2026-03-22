@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mockUsers, authState } from '../store/userdata'
+import { mockUsers, authState } from '../store/userData'
 
 const deleteUser = (id: number) => {
   // Not implemented, but UI ready
