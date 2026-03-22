@@ -3,15 +3,15 @@ import { mockUsers, authState } from '../store/userData'
 
 const deleteUser = (id: number) => {
   // Not implemented, but UI ready
-  alert(`Delete user with ID: ${id} (Admin functionality)`)
+  console.log(`Delete user with ID: ${id} (Admin functionality)`)
 }
 
 const editUser = (name: string) => {
-  alert(`Edit user: ${name} (Admin functionality)`)
+  console.log(`Edit user: ${name} (Admin functionality)`)
 }
 
 const addUser = () => {
-  alert("Add new user form would show here.")
+  console.log("Add new user form would show here.")
 }
 </script>
 

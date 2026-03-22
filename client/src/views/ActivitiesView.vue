@@ -2,15 +2,15 @@
 import { authState } from '../store/userData'
 
 const addActivity = () => {
-  alert("Add activity form would open here.")
+  console.log("Add activity form would open here.")
 }
 
 const editActivity = (type: string) => {
-  alert(`Editing activity: ${type}`)
+  console.log(`Editing activity: ${type}`)
 }
 
 const deleteActivity = (id: number) => {
-  alert(`Deleting activity ID: ${id}`)
+  console.log(`Deleting activity ID: ${id}`)
 }
 </script>
 
