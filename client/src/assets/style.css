@@ -7,14 +7,14 @@ body {
   background-color: #ff5fa2 !important;
 }
 
-/* This targets the mobile dropdown menu background */
+
 .navbar.custom-navbar .navbar-menu.is-active {
   background-color: #ff5fa2 !important;
 }
 
-/* Force active link color and background */
+
 .navbar.custom-navbar .navbar-item.is-active {
-  background-color: #ff8fb1 !important; /* Slightly lighter pink for active state */
+  background-color: #ff8fb1 !important;
   color: white !important;
 }
 
@@ -23,13 +23,12 @@ body {
   color: white;
 }
 
-/* Brand Theme Extensions */
 .is-brand-pink {
   background-color: #ff5fa2 !important;
   color: white !important;
 }
 
-/* Reusable UI Elements */
+
 .hover-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
