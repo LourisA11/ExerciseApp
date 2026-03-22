@@ -65,7 +65,7 @@ export const mockUsers: User[] = [
   }
 ];
 
-// This object is SHARED across the whole app
+
 export const authState = reactive({
   currentUser: null as User | null
 });
