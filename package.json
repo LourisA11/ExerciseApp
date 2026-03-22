@@ -9,8 +9,8 @@
     "license": "ISC",
     "author": "",
     "scripts": {
-        "build": "tsc",
-        "start": "node dist/index.js",
+        "build": "tsc -v",
+        "start": "node dist/server/index.js",
         "dev": "tsx watch server/index.ts"
     },
     "dependencies": {
