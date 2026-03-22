@@ -1,0 +1,56 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar.custom-navbar {
+  background-color: #ff5fa2 !important;
+}
+
+/* This targets the mobile dropdown menu background */
+.navbar.custom-navbar .navbar-menu.is-active {
+  background-color: #ff5fa2 !important;
+}
+
+/* Force active link color and background */
+.navbar.custom-navbar .navbar-item.is-active {
+  background-color: #ff8fb1 !important; /* Slightly lighter pink for active state */
+  color: white !important;
+}
+
+.navbar.custom-navbar .navbar-item,
+.navbar.custom-navbar .navbar-link {
+  color: white;
+}
+
+/* Brand Theme Extensions */
+.is-brand-pink {
+  background-color: #ff5fa2 !important;
+  color: white !important;
+}
+
+/* Reusable UI Elements */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.avatar-round {
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-tag {
+  text-transform: capitalize;
+}
+
+.admin-table-container {
+  margin-top: 1.5rem;
+}
+
