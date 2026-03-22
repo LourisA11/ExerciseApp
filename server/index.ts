@@ -1,4 +1,5 @@
 import express from "express"
+import path from "path"
 import usersController from "./controllers/users"
 
 const PORT = 3000
@@ -6,13 +7,18 @@ const SERVER = "localhost"
 
 const app = express()
 
-app.get("/", (_req, res) => {
-    res.send("Hello World!")
+// Serve static files from the client/dist directory
+app.use(express.static(path.join(__dirname, "../client/dist")))
+
+app.get("/suny", (_req, res) => {
+    res.send("The best plan of my life!")
 })
-    .get("/suny", (_req, res) => {
-        res.send("The best plan of my life!")
-    })
     .use("/users", usersController)
+
+// Handle SPA routing - send all other requests to index.html
+app.get("*", (_req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"))
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://${SERVER}:${PORT}`)

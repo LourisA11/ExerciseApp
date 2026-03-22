@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mockUsers, authState } from '../store/userdata'
+import { mockUsers, authState } from '../store/userData'
 </script>
 
 <template>
@@ -56,7 +56,7 @@ import { mockUsers, authState } from '../store/userdata'
                   </div>
                 </nav>
 
-                <div v-if="user.activities.length > 0" class="mt-3">
+                <div v-if="user.activities && user.activities[0]" class="mt-3">
                   <p class="is-size-7 has-text-weight-bold">Recent Activity:</p>
                   <span class="tag is-success is-light">
                     {{ user.activities[0].type }} - {{ user.activities[0].duration }} mins

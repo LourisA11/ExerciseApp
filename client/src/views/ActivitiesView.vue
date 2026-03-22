@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { authState } from '../store/userdata'
+import { authState } from '../store/userData'
 
 const addActivity = () => {
   alert("Add activity form would open here.")
