@@ -1,10 +1,6 @@
-/*  B"H
- */
-
 import { defineStore } from 'pinia'
 import type { User } from '../../../server/types'
 import { computed, ref } from 'vue'
-
 import { api as myApi } from '../services/myFetch'
 
 export type FeedbackMessage = {
