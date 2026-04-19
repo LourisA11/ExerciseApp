@@ -1,0 +1,13 @@
+{
+    "excercises": [
+        {
+            "name": "Bench Press",
+            "sets": 3,
+            "reps": 10,
+            "weight": 135,
+            "duration": 30,
+            "date": "2024-06-01",
+            "type": ["arms", "back"]
+        }
+    ]
+}

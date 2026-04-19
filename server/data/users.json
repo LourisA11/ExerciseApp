@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "firstName": "Emily",
+      "lastName": "Johnson",
+      "maidenName": "Smith",
+      "age": 29,
+      "gender": "female",
+      "email": "emily.johnson@x.dummyjson.com",
+      "phone": "+81 965-431-3024",
+      "username": "emilys",
+      "password": "emilyspass",
+      "height": 180,
+      "weight": 150,
+      "eyeColor": "Green",
+      "hair": { "color": "Brown", "type": "Curly" },
+      "ip": "42.48.100.32",
+      "macAddress": "47:fa:41:18:ec:eb",
+      "university": "University of Wisconsin--Madison",
+      "role": "admin",
+      "birthDate": "1995-04-12"
+    }
+
+  ]
+}  
