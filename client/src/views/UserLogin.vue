@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { mockUsers, authState } from '../store/userData' 
+import { mockUsers, authState } from '../store/userData'
 
 const isDropdownOpen = ref(false)
 
