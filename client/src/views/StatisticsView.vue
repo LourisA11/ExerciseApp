@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { authState } from '../store/userdata'
+import { authState } from '../store/userData'
 </script>
 
 <template>
@@ -9,9 +9,9 @@ import { authState } from '../store/userdata'
         <h1 class="title is-2 has-text-centered mb-6">Fitness Statistics</h1>
         <p class="subtitle is-4 has-text-centered mb-6">Welcome back, <span class="has-text-primary has-text-weight-bold">{{ authState.currentUser.name }}</span>!</p>
         
-        <!-- Stats Grid -->
+        
         <div class="columns is-multiline">
-          <!-- Calories Card -->
+          
           <div class="column is-12">
             <div class="box has-background-primary-light has-text-centered py-6">
               <p class="heading is-size-5">Total Calories Burned</p>
@@ -19,7 +19,7 @@ import { authState } from '../store/userdata'
             </div>
           </div>
 
-          <!-- Mini Stats -->
+          
           <div class="column is-3">
             <div class="box hover-lift has-text-centered h-100">
               <span class="icon is-large has-text-info">

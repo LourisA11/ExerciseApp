@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { mockUsers, authState } from '../store/userdata'
+import { mockUsers, authState } from '../store/userData'
 
-const deleteUser = (id: number) => {
-  // Not implemented, but UI ready
-  alert(`Delete user with ID: ${id} (Admin functionality)`)
-}
 
-const editUser = (name: string) => {
-  alert(`Edit user: ${name} (Admin functionality)`)
-}
 
-const addUser = () => {
-  alert("Add new user form would show here.")
-}
 </script>
 
 <template>
@@ -26,10 +16,6 @@ const addUser = () => {
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button is-primary" @click="addUser">
-              <span class="icon"><i class="fas fa-plus"></i></span>
-              <span>Add User</span>
-            </button>
           </div>
         </div>
       </div>
@@ -65,12 +51,6 @@ const addUser = () => {
                 <td>{{ user.totalCalories }}</td>
                 <td>
                   <div class="buttons are-small">
-                    <button class="button is-warning is-light" @click="editUser(user.name)">
-                      <span class="icon"><i class="fas fa-edit"></i></span>
-                    </button>
-                    <button class="button is-danger is-light" @click="deleteUser(user.id)">
-                      <span class="icon"><i class="fas fa-trash"></i></span>
-                    </button>
                   </div>
                 </td>
               </tr>
