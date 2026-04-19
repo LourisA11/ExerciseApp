@@ -9,7 +9,7 @@
     "license": "ISC",
     "author": "",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -v",
         "start": "node dist/server/index.js",
         "dev": "tsx watch server/index.ts"
     },
