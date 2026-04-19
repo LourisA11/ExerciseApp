@@ -18,9 +18,21 @@ body {
   color: white !important;
 }
 
+.navbar.custom-navbar .navbar-dropdown {
+  background-color: #ff5fa2 !important;
+}
+
+.navbar.custom-navbar .navbar-dropdown .navbar-item {
+  color: #ff5fa2 !important;
+}
+
+.navbar.custom-navbar .navbar-dropdown .navbar-item:hover {
+  background-color: #ff8fb1 !important;
+}
+
 .navbar.custom-navbar .navbar-item,
 .navbar.custom-navbar .navbar-link {
-  color: white;
+  color: white !important;
 }
 
 .is-brand-pink {
