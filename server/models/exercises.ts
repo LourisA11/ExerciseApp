@@ -1,6 +1,7 @@
 import type { Exercise } from "../types"
 import data1 from "../data/exercises.json"
 import { PagingRequest } from "../types/dataEnvelope"
+import { connect } from "./supabase"
 
 type ItemType = Exercise
 const data = {

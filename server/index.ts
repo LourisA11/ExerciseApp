@@ -1,5 +1,7 @@
 import express from "express"
 import path from "path"
+import { config } from "dotenv"
+config()
 
 
 const PORT = 3000
