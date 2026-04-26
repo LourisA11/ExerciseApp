@@ -4,6 +4,7 @@ import ActivitiesView from '../views/ActivitiesView.vue'
 import AdminView from '../views/AdminView.vue'
 import SocialView from '../views/SocialView.vue'
 import StatisticsView from '../views/StatisticsView.vue'
+import UserLogin from '../views/UserLogin.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
        path: '/social',
     name: 'social',
     component: SocialView
+  },
+  {
+    path: '/sign-up',
+    name: 'sign-up',
+    component: UserLogin
   },
   {
        path: '/statistics',
