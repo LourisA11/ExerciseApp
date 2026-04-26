@@ -5,17 +5,23 @@ import path from "node:path"
 
 config()
 
-if (!process.env.SUPABASE_URL && !process.env.VITE_SUPABASE_URL) {
-    const clientEnvPath = path.resolve(process.cwd(), "client/.env")
-    if (existsSync(clientEnvPath)) {
-        config({ path: clientEnvPath })
-    }
+const rootEnvPath = path.resolve(process.cwd(), ".env")
+if (existsSync(rootEnvPath)) {
+    config({ path: rootEnvPath })
+}
+
+const clientEnvPath = path.resolve(process.cwd(), "client/.env")
+if (existsSync(clientEnvPath)) {
+    config({ path: clientEnvPath })
 }
 
 export function connect() {
-        const supabaseUrl = process.env.SUPABASE_URL || ""
-        const supabaseKey = process.env.SUPABASE_SECRET_KEY || ""
-   
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || ""
+    const supabaseKey =
+        process.env.SUPABASE_SECRET_KEY ||
+        process.env.SUPABASE_URL ||
+        ""
+
     return createClient(supabaseUrl, supabaseKey)
 }
 
