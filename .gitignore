@@ -32,3 +32,4 @@ pnpm-debug.log*
 *.sw?
 .env
 client/.env
+client/.env
