@@ -1,6 +1,7 @@
 {
-    "excercises": [
+    "excercise": [
         {
+            "id": 1,
             "name": "Bench Press",
             "sets": 3,
             "reps": 10,

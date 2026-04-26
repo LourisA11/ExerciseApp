@@ -1,5 +1,7 @@
 import express from "express"
 import path from "path"
+import { config } from "dotenv"
+config()
 
 
 const PORT = 3000
@@ -14,7 +16,7 @@ app.use(express.static(path.join(__dirname, "../client/dist")))
    
 
 // Handle SPA routing - send all other requests to index.html
-app.get("*", (_req, res) => {
+app.get(/.*/, (_req, res) => {
     res.sendFile(path.join(__dirname, "../client/dist/index.html"))
 })
 
