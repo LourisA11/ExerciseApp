@@ -1,72 +1,143 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import UserExInputForm from '../components/UserExInputForm.vue'
 import { authState } from '../store/userData'
+import {
+  addUserExercise,
+  deleteUserExercise,
+  getUserExercises,
+  type UserExerciseRow,
+} from '../services/userExerciseService'
+import { getExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
 
-const addActivity = () => {
-  console.log("Add activity form would open here.")
+const activities = ref<UserExerciseRow[]>([])
+const exercises = ref<ExerciseBankRow[]>([])
+const selectedExerciseId = ref('')
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+const loadExercises = async () => {
+  const response = await getExerciseBank()
+  if (response.isSuccess) {
+    exercises.value = response.data ?? []
+    if (!selectedExerciseId.value && exercises.value.length) {
+      selectedExerciseId.value = exercises.value[0]!.id
+    }
+  }
 }
 
-const editActivity = (type: string) => {
-  console.log(`Editing activity: ${type}`)
+const loadActivities = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await getUserExercises()
+    if (!response.isSuccess) {
+      errorMessage.value = response.message ?? 'Unable to load activities.'
+      activities.value = []
+      return
+    }
+
+    activities.value = response.data ?? []
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to load activities.'
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const deleteActivity = (id: number) => {
-  console.log(`Deleting activity ID: ${id}`)
+const addActivity = async () => {
+  try {
+    errorMessage.value = ''
+
+    const userId = authState.currentUser?.id
+    if (!userId) {
+      errorMessage.value = 'You must be logged in.'
+      return
+    }
+
+    if (!selectedExerciseId.value) {
+      errorMessage.value = 'Please select an exercise.'
+      return
+    }
+
+    const response = await addUserExercise({
+      user_id: userId,
+      exercise_id: selectedExerciseId.value,
+      weight_lb: null,
+      reps: null,
+      durations_min: null,
+      distance: null,
+    })
+
+    if (!response.isSuccess) {
+      errorMessage.value = response.message ?? 'Unable to add activity.'
+      return
+    }
+
+    await loadActivities()
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to add activity.'
+  }
 }
+
+const deleteActivity = async (id: number) => {
+  try {
+    const response = await deleteUserExercise(id)
+    if (!response.isSuccess) {
+      errorMessage.value = response.message ?? 'Unable to delete activity.'
+      return
+    }
+    await loadActivities()
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to delete activity.'
+  }
+}
+
+onMounted(async () => {
+  await loadExercises()
+  await loadActivities()
+})
 </script>
 
 <template>
   <div class="section">
-    <div v-if="authState.currentUser" class="container">
-      <div class="level">
-        <div class="level-left">
-          <h1 class="title">Activities Overview</h1>
-        </div>
-        <div class="level-right">
-          <button class="button is-primary" @click="addActivity">
-            <span class="icon"><i class="fas fa-plus"></i></span>
-            <span>Add Activity</span>
-          </button>
-        </div>
-      </div>
+    <h1 class="title">Activities</h1>
 
-      <div class="box">
-        <h2 class="subtitle">Recent logs for <strong>{{ authState.currentUser.name }}</strong></h2>
-        
-        <table class="table is-fullwidth is-striped is-hoverable" v-if="authState.currentUser.activities.length">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Duration</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="act in authState.currentUser.activities" :key="act.id">
-              <td>{{ act.date }}</td>
-              <td><span class="tag is-info is-light">{{ act.type }}</span></td>
-              <td>{{ act.duration }} min</td>
-              <td>
-                <div class="buttons are-small">
-                  <button class="button is-info is-light" @click="editActivity(act.type)">
-                    <span class="icon"><i class="fas fa-edit"></i></span>
-                  </button>
-                  <button class="button is-danger is-light" @click="deleteActivity(act.id)">
-                    <span class="icon"><i class="fas fa-trash"></i></span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else class="has-text-grey has-text-centered py-4">No activities recorded yet.</p>
-      </div>
+    <UserExInputForm v-model="selectedExerciseId" />
+
+    <div class="mt-3">
+      <button
+        class="button is-primary"
+        :disabled="isLoading || !selectedExerciseId"
+        @click="addActivity"
+      >
+        Add Exercise
+      </button>
     </div>
-    <div v-else class="container">
-      <div class="notification is-warning">
-        Please log in to see your activity logs.
-      </div>
-    </div>
+
+    <p v-if="errorMessage" class="has-text-danger mt-3">{{ errorMessage }}</p>
+
+    <table v-if="activities.length" class="table is-fullwidth mt-4">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Exercise</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="a in activities" :key="a.id">
+          <td>{{ a.id }}</td>
+          <td>{{ a.exercise_id }}</td>
+          <td>{{ a.created_at }}</td>
+          <td>
+            <button class="button is-small is-danger" @click="deleteActivity(a.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 

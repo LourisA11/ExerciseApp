@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { mockUsers, authState } from '../store/userData'
+import NewExercise from '../components/NewExercise.vue'
 
 const deleteUser = (id: number) => {
   // Not implemented, but UI ready
@@ -38,44 +39,48 @@ const addUser = () => {
         Access Denied. You must be an administrator to view this page.
       </div>
 
-      <div v-else class="box">
-        <div class="table-container admin-table-container">
-          <table class="table is-fullwidth is-striped is-hoverable">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Activities</th>
-                <th>Calories</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in mockUsers" :key="user.id">
-                <td>{{ user.id }}</td>
-                <td><strong>{{ user.name }}</strong></td>
-                <td>
-                  <span class="tag user-tag" :class="user.role === 'admin' ? 'is-danger' : 'is-info'">
-                    {{ user.role }}
-                  </span>
-                </td>
+      <div v-else>
+        <NewExercise />
 
-                <td>{{ user.activities.length }}</td>
-                <td>{{ user.totalCalories }}</td>
-                <td>
-                  <div class="buttons are-small">
-                    <button class="button is-warning is-light" @click="editUser(user.name)">
-                      <span class="icon"><i class="fas fa-edit"></i></span>
-                    </button>
-                    <button class="button is-danger is-light" @click="deleteUser(user.id)">
-                      <span class="icon"><i class="fas fa-trash"></i></span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="box">
+          <div class="table-container admin-table-container">
+            <table class="table is-fullwidth is-striped is-hoverable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Activities</th>
+                  <th>Calories</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="user in mockUsers" :key="user.id">
+                  <td>{{ user.id }}</td>
+                  <td><strong>{{ user.name }}</strong></td>
+                  <td>
+                    <span class="tag user-tag" :class="user.role === 'admin' ? 'is-danger' : 'is-info'">
+                      {{ user.role }}
+                    </span>
+                  </td>
+
+                  <td>{{ user.activities.length }}</td>
+                  <td>{{ user.totalCalories }}</td>
+                  <td>
+                    <div class="buttons are-small">
+                      <button class="button is-warning is-light" @click="editUser(user.name)">
+                        <span class="icon"><i class="fas fa-edit"></i></span>
+                      </button>
+                      <button class="button is-danger is-light" @click="deleteUser(user.id)">
+                        <span class="icon"><i class="fas fa-trash"></i></span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
