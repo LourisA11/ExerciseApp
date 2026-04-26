@@ -44,19 +44,19 @@ const selectAccount = (user: typeof mockUsers[number]) => {
                         Home
                     </RouterLink>
 
-                    <RouterLink to="/Activities" active-class="is-active" class="navbar-item" @click="isActive = false">
+                    <RouterLink to="/activities" active-class="is-active" class="navbar-item" @click="isActive = false">
                         Activities
                     </RouterLink>
 
-                    <RouterLink to="/Statistics" active-class="is-active" class="navbar-item" @click="isActive = false">
+                    <RouterLink to="/statistics" active-class="is-active" class="navbar-item" @click="isActive = false">
                         Stats
                     </RouterLink>
 
-                    <RouterLink to="/Social" active-class="is-active" class="navbar-item" @click="isActive = false">
+                    <RouterLink to="/social" active-class="is-active" class="navbar-item" @click="isActive = false">
                         Social
                     </RouterLink>
 
-                    <RouterLink v-if="authState.currentUser?.role === 'admin'" to="/Admin" active-class="is-active" class="navbar-item" @click="isActive = false">
+                    <RouterLink v-if="authState.currentUser?.role === 'admin'" to="/admin" active-class="is-active" class="navbar-item" @click="isActive = false">
                         Admin
                     </RouterLink>
                 </div>
