@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { mockUsers, authState } from '../store/userData'
 import NewExercise from '../components/NewExercise.vue'
+import { getExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
+
+const exerciseBank = ref<ExerciseBankRow[]>([])
+const isLoadingExercises = ref(false)
+const exerciseErrorMessage = ref('')
 
 const deleteUser = (id: number) => {
   // Not implemented, but UI ready
@@ -14,6 +20,29 @@ const editUser = (name: string) => {
 const addUser = () => {
   console.log("Add new user form would show here.")
 }
+
+const loadExerciseBank = async () => {
+  isLoadingExercises.value = true
+  exerciseErrorMessage.value = ''
+
+  try {
+    const response = await getExerciseBank()
+    if (!response.isSuccess) {
+      exerciseErrorMessage.value = response.message ?? 'Unable to load exercise bank.'
+      exerciseBank.value = []
+      return
+    }
+
+    exerciseBank.value = response.data ?? []
+  } catch (error) {
+    exerciseErrorMessage.value = error instanceof Error ? error.message : 'Unable to load exercise bank.'
+    exerciseBank.value = []
+  } finally {
+    isLoadingExercises.value = false
+  }
+}
+
+onMounted(loadExerciseBank)
 </script>
 
 <template>
@@ -40,7 +69,32 @@ const addUser = () => {
       </div>
 
       <div v-else>
-        <NewExercise />
+        <NewExercise @exercise-created="loadExerciseBank" />
+
+        <div class="box">
+          <h2 class="title is-5">Exercise Bank</h2>
+          <p v-if="isLoadingExercises" class="has-text-grey">Loading exercises...</p>
+          <p v-if="exerciseErrorMessage" class="has-text-danger">{{ exerciseErrorMessage }}</p>
+
+          <table v-if="exerciseBank.length" class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="exercise in exerciseBank" :key="exercise.id">
+                <td>{{ exercise.name }}</td>
+                <td>{{ exercise.type }}</td>
+                <td>{{ exercise.created_at }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p v-else-if="!isLoadingExercises" class="has-text-grey">No exercises found in the database.</p>
+        </div>
 
         <div class="box">
           <div class="table-container admin-table-container">

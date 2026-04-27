@@ -3,6 +3,10 @@ import { computed, ref } from 'vue'
 import { authState } from '../store/userData'
 import { addExerciseBank } from '../services/exerciseBankService'
 
+const emit = defineEmits<{
+  exerciseCreated: []
+}>()
+
 const name = ref('')
 const type = ref('')
 const isSaving = ref(false)
@@ -44,6 +48,7 @@ const submitNewExercise = async () => {
     successMessage.value = 'Exercise created.'
     name.value = ''
     type.value = ''
+    emit('exerciseCreated')
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Failed to create exercise.'
   } finally {
