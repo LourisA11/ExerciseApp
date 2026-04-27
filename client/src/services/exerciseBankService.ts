@@ -25,3 +25,11 @@ export function addExerciseBank(payload: { name: string; type: string }) {
     body: JSON.stringify(payload),
   })
 }
+
+export function updateExerciseBank(id: string, payload: { name: string; type: string }) {
+  return myFetch(`/exercise-bank/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+}
