@@ -9,6 +9,7 @@ const emit = defineEmits<{
 
 const name = ref('')
 const type = ref('')
+const exerciseTypes = ['Strength', 'Cardio', 'Flexibility', 'Mobility', 'Balance', 'Sports']
 const isSaving = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -76,7 +77,14 @@ const submitNewExercise = async () => {
       <div class="field">
         <label class="label">Type</label>
         <div class="control">
-          <input v-model="type" class="input" type="text" placeholder="Strength" required />
+          <div class="select is-fullwidth">
+            <select v-model="type" required>
+              <option disabled value="">Select a type</option>
+              <option v-for="exerciseType in exerciseTypes" :key="exerciseType" :value="exerciseType">
+                {{ exerciseType }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
 
