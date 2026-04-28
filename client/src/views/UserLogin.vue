@@ -12,7 +12,7 @@ const toggleDropdown = () => {
 }
 
 const selectAccount = (user: (typeof mockUsers)[number]) => {
-  setCurrentUser(user)
+  sessionStore.setUser(user)
   isDropdownOpen.value = false 
   
   console.log(`Logged in as ${user.name}! Now you can navigate to other pages.`)
