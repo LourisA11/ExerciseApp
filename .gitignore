@@ -32,3 +32,4 @@ pnpm-debug.log*
 *.sw?
 
 .env
+node_modules/.package-lock.json
