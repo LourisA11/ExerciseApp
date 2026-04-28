@@ -1,6 +1,7 @@
 import type { User } from "../types"
 import data1 from "../data/users.json"
 import { PagingRequest } from "../types/dataEnvelope"
+import { connect } from "./supabase"
 
 type ItemType = User
 const data = {
@@ -34,37 +35,45 @@ export function getAll(params: PagingRequest) {
     return { list, count }
 }
 
-export function get(id: number): ItemType {
-    const item = data.items.find((item) => item.id === id)
-    if (!item) {
-        const error = { status: 404, message: "ItemType not found" }
-        throw error
-    }
-    return item as ItemType
+/**
+ * Update User by id
+ */
+export async function update(id: string, payload: Record<string, unknown>) {
+  const { data, error } = await connect()
+    .from("Users")
+    .update({
+      email: payload.email,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      age: payload.age,
+      height: payload.height,
+      weight: payload.weight,
+      role: payload.role,
+    })
+    .eq("id", id)
+    .select("*")
+    .single()
+
+  return {
+    isSuccess: !error,
+    message: error?.message,
+    data: data ?? null,
+}
 }
 
-export function create(user: ItemType) {
-    const newItemType = {
-        ...user,
-        id: data.items.length + 1,
-    }
-    data.items.push(newItemType as any)
-    return newItemType
-}
-
-export function update(id: number, user: Partial<ItemType>) {
-    const index = data.items.findIndex((u) => u.id === id)
-    if (index === -1) {
-        const error = { status: 404, message: "ItemType not found" }
-        throw error
-    }
-    const updatedItemType = {
-        ...data.items[index],
-        ...user,
-    }
-    data.items[index] = updatedItemType as any
-    return updatedItemType
-}
+// export function update(id: number, user: Partial<ItemType>) {
+//     const index = data.items.findIndex((u) => u.id === id)
+//     if (index === -1) {
+//         const error = { status: 404, message: "ItemType not found" }
+//         throw error
+//     }
+//     const updatedItemType = {
+//         ...data.items[index],
+//         ...user,
+//     }
+//     data.items[index] = updatedItemType as any
+//     return updatedItemType
+// }
 
 export function remove(id: number) {
     const index = data.items.findIndex((u) => u.id === id)
@@ -75,3 +84,13 @@ export function remove(id: number) {
     const removedItemType = data.items.splice(index, 1)[0]
     return removedItemType as ItemType
 }
+
+export function get (id: number) {
+    const itemType = data.items.find((u) => u.id === id)
+    if (!itemType) {
+        const error = { status: 404, message: "ItemType not found" }
+        throw error
+    }
+    return itemType as ItemType
+}
+

@@ -1,6 +1,8 @@
 import { Router } from "express"
-import { getAll, get, create, update, remove } from "../models/users"
+import { getAll, update, get, remove} from "../models/users"
+
 import { User, DataEnvelope, DataListEnvelope } from "../types"
+
 
 const app = Router()
 
@@ -34,23 +36,29 @@ app.get("/", async(req, res) => {
         res.send(response)
     })
 
-    .post("/", async (req, res) => {
-        const newUser = await create(req.body)
-        const response: DataEnvelope<User> = {
-            data: newUser,
-            isSuccess: true,
-        }
-        res.send(response)
-    })
-    .patch("/:id", async (req, res) => {
-        const { id } = req.params
-        const updatedUser = await update(Number(id), req.body)
-        const response: DataEnvelope<User> = {
-            data: updatedUser as User,
-            isSuccess: true,
-        }
-        res.send(response)
-    })
+    // .post("/", async (req, res) => {
+    //     const newUser = await create(req.body)
+    //     const response: DataEnvelope<User> = {
+    //         data: newUser,
+    //         isSuccess: true,
+    //     }
+    //     res.send(response)
+    // })
+.patch("/:id", async (req, res) => {
+    const { id } = req.params;
+    
+    // 1. Call the update function
+    const result = await update(id, req.body);
+    
+    // 2. Extract the actual user from the result's data property
+    // We assume 'result' is the envelope coming from your model/service
+    const response: DataEnvelope<User> = {
+        data: result.data as User, 
+        isSuccess: result.isSuccess,
+    };
+    
+    res.send(response);
+})
     .delete("/:id", async (req, res) => {
         const { id } = req.params
         const removedUser = await remove(Number(id))
