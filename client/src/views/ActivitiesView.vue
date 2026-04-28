@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { authState } from '../store/userData'
 import AddNewExercise from '../components/AddNewExercise.vue'
 import {
   deleteUserExercise,
@@ -74,6 +75,7 @@ onMounted(async () => {
 
 <template>
   <div class="section">
+      <div v-if="authState.currentUser">
     <h1 class="title">Activities</h1>
 
     <AddNewExercise @added="loadActivities" />
@@ -100,6 +102,10 @@ onMounted(async () => {
         </tr>
       </tbody>
     </table>
+  </div>
+    <div v-else class="has-text-centered py-6">
+        <p class="title">Please log in to view your activities.</p>
+      </div>
   </div>
 </template>
 
