@@ -1,5 +1,7 @@
 import { reactive } from 'vue';
 
+const SESSION_KEY = 'currentUser'
+
 export interface Activity {
   id: number;
   type: string;
@@ -16,6 +18,7 @@ export interface Stats {
 
 export interface User {
   id: number;
+  dbId: string;
   email: string;
   name: string;
   password?: string;
@@ -28,6 +31,7 @@ export interface User {
 export const mockUsers: User[] = [
   { 
     id: 1, 
+    dbId: '2d4c0f1e-4d7f-4c2c-9a8c-111111111111',
     email: 'admin@test.com', 
     role: 'admin', 
     name: 'System Admin',
@@ -41,6 +45,7 @@ export const mockUsers: User[] = [
   },
   { 
     id: 2, 
+    dbId: '2d4c0f1e-4d7f-4c2c-9a8c-222222222222',
     email: 'user@test.com', 
     role: 'user', 
     name: 'Jane Doe',
@@ -54,6 +59,7 @@ export const mockUsers: User[] = [
   },
   { 
     id: 3, 
+    dbId: '2d4c0f1e-4d7f-4c2c-9a8c-333333333333',
     email: 'guest@test.com', 
     role: 'user', 
     name: 'Guest User',
@@ -65,7 +71,25 @@ export const mockUsers: User[] = [
   }
 ];
 
+// This object is SHARED across the whole app
+function loadCurrentUserFromSession(): User | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    return raw ? (JSON.parse(raw) as User) : null
+  } catch {
+    return null
+  }
+}
 
 export const authState = reactive({
-  currentUser: null as User | null
+  currentUser: loadCurrentUserFromSession() as User | null
 });
+
+export function setCurrentUser(user: User | null) {
+  authState.currentUser = user
+  if (user) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(user))
+  } else {
+    sessionStorage.removeItem(SESSION_KEY)
+  }
+}

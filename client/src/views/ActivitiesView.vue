@@ -1,72 +1,105 @@
 <script setup lang="ts">
-import { authState } from '../store/userData'
+import { onMounted, ref } from 'vue'
+import AddNewExercise from '../components/AddNewExercise.vue'
+import {
+  deleteUserExercise,
+  getUserExercises,
+  type UserExerciseRow,
+} from '../services/userExerciseService'
+import { getExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
 
-const addActivity = () => {
-  console.log("Add activity form would open here.")
+const activities = ref<UserExerciseRow[]>([])
+const exerciseBank = ref<ExerciseBankRow[]>([])
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+const loadExerciseBank = async () => {
+  try {
+    const response = await getExerciseBank()
+    if (response.isSuccess) {
+      exerciseBank.value = response.data ?? []
+    }
+  } catch {
+    exerciseBank.value = []
+  }
 }
 
-const editActivity = (type: string) => {
-  console.log(`Editing activity: ${type}`)
+const getExerciseLabel = (exerciseId: string | null) => {
+  if (!exerciseId) return 'Unknown exercise'
+
+  const exercise = exerciseBank.value.find((item) => item.id === exerciseId)
+  if (!exercise) return exerciseId
+
+  return `${exercise.name} (${exercise.type})`
 }
 
-const deleteActivity = (id: number) => {
-  console.log(`Deleting activity ID: ${id}`)
+const loadActivities = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await getUserExercises()
+    if (!response.isSuccess) {
+      errorMessage.value = response.message ?? 'Unable to load activities.'
+      activities.value = []
+      return
+    }
+
+    activities.value = response.data ?? []
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to load activities.'
+  } finally {
+    isLoading.value = false
+  }
 }
+
+const deleteActivity = async (id: number) => {
+  try {
+    const response = await deleteUserExercise(id)
+    if (!response.isSuccess) {
+      errorMessage.value = response.message ?? 'Unable to delete activity.'
+      return
+    }
+    await loadActivities()
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to delete activity.'
+  }
+}
+
+onMounted(async () => {
+  await loadExerciseBank()
+  await loadActivities()
+})
 </script>
 
 <template>
   <div class="section">
-    <div v-if="authState.currentUser" class="container">
-      <div class="level">
-        <div class="level-left">
-          <h1 class="title">Activities Overview</h1>
-        </div>
-        <div class="level-right">
-          <button class="button is-primary" @click="addActivity">
-            <span class="icon"><i class="fas fa-plus"></i></span>
-            <span>Add Activity</span>
-          </button>
-        </div>
-      </div>
+    <h1 class="title">Activities</h1>
 
-      <div class="box">
-        <h2 class="subtitle">Recent logs for <strong>{{ authState.currentUser.name }}</strong></h2>
-        
-        <table class="table is-fullwidth is-striped is-hoverable" v-if="authState.currentUser.activities.length">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Duration</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="act in authState.currentUser.activities" :key="act.id">
-              <td>{{ act.date }}</td>
-              <td><span class="tag is-info is-light">{{ act.type }}</span></td>
-              <td>{{ act.duration }} min</td>
-              <td>
-                <div class="buttons are-small">
-                  <button class="button is-info is-light" @click="editActivity(act.type)">
-                    <span class="icon"><i class="fas fa-edit"></i></span>
-                  </button>
-                  <button class="button is-danger is-light" @click="deleteActivity(act.id)">
-                    <span class="icon"><i class="fas fa-trash"></i></span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else class="has-text-grey has-text-centered py-4">No activities recorded yet.</p>
-      </div>
-    </div>
-    <div v-else class="container">
-      <div class="notification is-warning">
-        Please log in to see your activity logs.
-      </div>
-    </div>
+    <AddNewExercise @added="loadActivities" />
+
+    <p v-if="errorMessage" class="has-text-danger mt-3">{{ errorMessage }}</p>
+
+    <table v-if="activities.length" class="table is-fullwidth mt-4">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Exercise</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="a in activities" :key="a.id">
+          <td>{{ a.id }}</td>
+          <td>{{ getExerciseLabel(a.exercise_id) }}</td>
+          <td>{{ a.created_at }}</td>
+          <td>
+            <button class="button is-small is-danger" @click="deleteActivity(a.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 

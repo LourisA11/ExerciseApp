@@ -1,4 +1,19 @@
-const API_BASE_URL = import.meta.env.VITE_API_ROOT
+const API_ROOT = import.meta.env.VITE_API_ROOT ?? "http://localhost:3000/api"
+
+export async function myFetch(path: string, options?: RequestInit) {
+  const res = await fetch(`${API_ROOT}${path}`, {
+    credentials: 'include',
+    ...options,
+  })
+
+  const contentType = res.headers.get("content-type") ?? ""
+  if (!contentType.includes("application/json")) {
+    const text = await res.text()
+    throw new Error(`Expected JSON but got: ${text.slice(0, 80)}`)
+  }
+
+  return res.json()
+}
 
 export default function rest<T>(
   url: string,
@@ -9,6 +24,7 @@ export default function rest<T>(
     method: data ? 'POST' : 'GET',
 
     body: data ? JSON.stringify(data) : undefined,
+    credentials: 'include',
     ...options,
 
     headers: {
@@ -20,8 +36,8 @@ export default function rest<T>(
   return fetch(url, options).then((res) => {
     if (!res.ok) {
       if (res.headers.get('Content-Type')?.includes('application/json')) {
-        return res.json().then((data) => {
-          throw new Error(data.message || 'An error occurred')
+        return res.json().then((responseData) => {
+          throw new Error(responseData.message || 'An error occurred')
         })
       }
       return res.text().then((text) => {
@@ -33,5 +49,5 @@ export default function rest<T>(
 }
 
 export function api<T>(endpoint: string, data?: unknown, options: RequestInit = {}) {
-  return rest<T>(`${API_BASE_URL}${endpoint}`, data, options)
+  return rest<T>(`${API_ROOT}${endpoint}`, data, options)
 }

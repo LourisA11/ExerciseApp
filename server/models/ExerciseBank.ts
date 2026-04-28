@@ -2,20 +2,50 @@ import { connect } from "./supabase"
 
 const conn = connect()
 const TABLE_NAME = "ExerciseBank"
+const PAGE_SIZE = 1000
 
 /**
  * Get all ExerciseBank rows
  */
 export async function getAll() {
-	const { data, error, count } = await conn
-		.from(TABLE_NAME)
-		.select("*", { count: "estimated" })
+	const allRows: Record<string, unknown>[] = []
+	let from = 0
+	let to = PAGE_SIZE - 1
+	let total = 0
+
+	while (true) {
+		const { data, error, count } = await conn
+			.from(TABLE_NAME)
+			.select("*", { count: "exact" })
+			.order("created_at", { ascending: true })
+			.range(from, to)
+
+		if (error) {
+			return {
+				isSuccess: false,
+				message: error.message,
+				data: [],
+				total: 0,
+			}
+		}
+
+		const rows = data ?? []
+		allRows.push(...rows)
+		total = count ?? allRows.length
+
+		if (rows.length < PAGE_SIZE) {
+			break
+		}
+
+		from += PAGE_SIZE
+		to += PAGE_SIZE
+	}
 
 	return {
-		isSuccess: !error,
-		message: error?.message,
-		data: data ?? [],
-		total: count ?? 0,
+		isSuccess: true,
+		message: undefined,
+		data: allRows,
+		total,
 	}
 }
 

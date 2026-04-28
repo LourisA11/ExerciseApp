@@ -3,7 +3,6 @@ import { connect } from "./supabase"
 const conn = connect()
 const TABLE_NAME = "UserExercise"
 
-
 /**
  * Get all UserExercise rows
  */

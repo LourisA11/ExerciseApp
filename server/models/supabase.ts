@@ -1,8 +1,38 @@
 import { createClient } from "@supabase/supabase-js"
+import { config } from "dotenv"
+import { existsSync } from "node:fs"
+import path from "node:path"
+
+config()
+
+const rootEnvPath = path.resolve(process.cwd(), ".env")
+if (existsSync(rootEnvPath)) {
+    config({ path: rootEnvPath })
+}
+
+const clientEnvPath = path.resolve(process.cwd(), "client/.env")
+if (existsSync(clientEnvPath)) {
+    config({ path: clientEnvPath })
+}
 
 export function connect() {
-    const supabaseUrl = process.env.SUPABASE_URL || ""
-    const supabaseKey = process.env.SUPABASE_SECRET_KEY || ""
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || ""
+    const supabaseKey =
+        process.env.SUPABASE_SECRET_KEY ||
+        process.env.SUPABASE_ANON_KEY ||
+        ""
+
+    if (!supabaseUrl) {
+        throw new Error(
+            "Missing Supabase URL. Set SUPABASE_URL or VITE_SUPABASE_URL in your .env file.",
+        )
+    }
+
+    if (!supabaseKey) {
+        throw new Error(
+            "Missing Supabase key. Set SUPABASE_SECRET_KEY/SUPABASE_ANON_KEY (or VITE_* equivalent) in your .env file.",
+        )
+    }
 
     return createClient(supabaseUrl, supabaseKey)
 }
@@ -46,3 +76,4 @@ export function toSnakeCase(
     }
     return result
 }
+
