@@ -1,8 +1,8 @@
 import express from "express"
 import path from "path"
-import usersController from "./controllers/users"
-import userExerciseController from "./controllers/UserExercise"
-import exerciseBankController from "./controllers/ExerciseBank"
+import usersController from "./controllers/users.js"
+import userExerciseController from "./controllers/UserExercise.js"
+import exerciseBankController from "./controllers/ExerciseBank.js"
 
 const PORT = process.env.PORT ?? 3000
 const SERVER = process.env.SERVER ?? "localhost"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import UserExInputForm from '../components/UserExInputForm.vue'
+import AddNewExercise from '../components/AddNewExercise.vue'
 import {
   deleteUserExercise,
   getUserExercises,
@@ -76,7 +76,7 @@ onMounted(async () => {
   <div class="section">
     <h1 class="title">Activities</h1>
 
-    <UserExInputForm @activity-added="loadActivities" />
+    <AddNewExercise @added="loadActivities" />
 
     <p v-if="errorMessage" class="has-text-danger mt-3">{{ errorMessage }}</p>
 
