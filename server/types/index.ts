@@ -1,29 +1,36 @@
-export type UsersRow = {
-  id: string
-  created_at: string
-  firstName: string
-  lastName: string
-  height: number
-  weight: number
-  age: number
-  email: string | null
-  role: "admin" | "moderator" | "user" | null
+export type { DataEnvelope, DataListEnvelope } from "./dataEnvelope"
+
+export type Exercise = {
+    id: number
+    name: string
+    sets: number
+    reps: number
+    weight: number
+    type: string
+    duration: number
+    date: string
+}
+   
+
+
+
+export type UserRole = "admin" | "moderator" | "user"
+
+export type User = {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    birthDate: string
+    role: UserRole
 }
 
-export type ExerciseBankRow = {
-  id: string
-  created_at: string
-  name: string
-  type: string
+export type UserStats = {
+    workoutsThisMonth: number
+    weight: number
+    height: number
+    gender: string
+    age: number
 }
 
-export type UserExerciseRow = {
-  id: number
-  created_at: string
-  user_id: string | null
-  exercise_id: string | null
-  weight_lb: number | null
-  reps: number | null
-  durations_min: number | null
-  distance: number | null
-}

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { mockUsers, setCurrentUser } from '../store/userData' 
+import { mockUsers } from '../store/userData'
+import useSessionStore from '../store/session'
+
+const sessionStore = useSessionStore()
 
 const isDropdownOpen = ref(false)
 
@@ -43,7 +46,7 @@ const selectAccount = (user: (typeof mockUsers)[number]) => {
 </template>
 
 <style scoped>
-/* Forces the login button to sit in the center of the viewport */
+
 .page-container {
   display: flex;
   justify-content: center;
@@ -52,7 +55,7 @@ const selectAccount = (user: (typeof mockUsers)[number]) => {
   background-color: #f4f6f9;
 }
 
-/* CRITICAL: Position relative forces the dropdown to attach to this container */
+
 .login-wrapper {
   position: relative;
   width: 100%;
@@ -84,17 +87,17 @@ const selectAccount = (user: (typeof mockUsers)[number]) => {
   transform: rotate(180deg);
 }
 
-/* CRITICAL: position: absolute pops it out of the document flow over the home page elements */
+
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px); /* Sits exactly 8px under the button */
+  top: calc(100% + 8px); 
   left: 0;
   width: 100%;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  z-index: 50; /* Ensures it is on top of footer, text, etc. */
+  z-index: 50; 
   list-style: none;
   padding: 0;
   margin: 0;

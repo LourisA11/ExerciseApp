@@ -6,43 +6,22 @@ import SocialView from '../views/SocialView.vue'
 import StatisticsView from '../views/StatisticsView.vue'
 import UserLogin from '../views/UserLogin.vue'
 
+// 1. Define routes FIRST
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/activities',
-    name: 'activities',
-    component: ActivitiesView
-  },
-  {
-    path: '/admin',
-    name: 'admin',
-    component: AdminView
-  },
-  {
-       path: '/social',
-    name: 'social',
-    component: SocialView
-  },
-  {
-    path: '/sign-up',
-    name: 'sign-up',
-    component: UserLogin
-  },
-  {
-       path: '/statistics',
-    name: 'statistics',
-    component: StatisticsView
-  }
-
+  { path: '/', name: 'home', component: HomeView },
+  { path: '/activities', name: 'activities', component: ActivitiesView },
+  { path: '/admin', name: 'admin', component: AdminView },
+  { path: '/social', name: 'social', component: SocialView },
+  { path: '/statistics', name: 'statistics', component: StatisticsView },
+  { path: '/sign-up', name: 'sign-up', component: UserLogin }
 ]
 
+// 2. Pass them into the router
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes: routes // or just 'routes' using shorthand
 })
+
+
 
 export default router

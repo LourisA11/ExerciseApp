@@ -1,59 +1,65 @@
 import { Router } from "express"
-import { connect } from "../models/supabase"
-import { getByEmail, getAll } from "../models/Users"
+import { getAll, get, create, update, remove } from "../models/users"
+import { User, DataEnvelope, DataListEnvelope } from "../types"
 
-const router = Router()
+const app = Router()
 
-type UserIdentity = {
-    id: string
-    email: string
-}
-
-router.get("/", async (req, res) => {
-    const email = typeof req.query.email === "string" ? req.query.email.trim().toLowerCase() : ""
-    const supabase = connect()
-    
-    try {
-        // Try Supabase Auth users first
-        const { data, error } = await supabase.auth.admin.listUsers()
-
-        if (!error && data?.users && data.users.length > 0) {
-            const authUsers: UserIdentity[] = data.users.map((user) => ({
-                id: user.id,
-                email: user.email ?? "",
-            }))
-
-            const filteredUsers = email
-                ? authUsers.filter((user) => user.email.toLowerCase() === email)
-                : authUsers
-
-            return res.send({ isSuccess: true, data: filteredUsers, total: filteredUsers.length })
-        }
-
-        // Fall back to app Users table
-        if (email) {
-            const result = await getByEmail(email)
-            const appUsers: UserIdentity[] = (result.data ?? []).map((user: any) => ({
-                id: user.id,
-                email: user.email ?? "",
-            }))
-            return res.send({ isSuccess: true, data: appUsers, total: appUsers.length })
-        } else {
-            const result = await getAll()
-            const appUsers: UserIdentity[] = (result.data ?? []).map((user: any) => ({
-                id: user.id,
-                email: user.email ?? "",
-            }))
-            return res.send({ isSuccess: true, data: appUsers, total: appUsers.length })
-        }
-    } catch (err: any) {
-        res.send({
-            isSuccess: false,
-            message: `Error fetching users: ${err.message}`,
-            data: [],
-            total: 0,
-        })
+app.get("/", async(req, res) => {
+    const { list, count } = getAll(req.query)
+    const sanitizedUsers = list.map((x) => ({
+        ...x,
+        password: undefined,
+    }))
+    const response: DataListEnvelope<User> = {
+        data: sanitizedUsers,
+        isSuccess: true,
+        total: count,
     }
+    res.send(response)
 })
+    .get("/count", async (req, res) => {
+        const { count } = getAll(req.query)
+        const response: DataEnvelope<{ count: number }> = {
+            data: { count },
+            isSuccess: true,
+        }
+        res.send(response)
+    })
+    .get("/:id", async (req, res) => {
+        const { id } = req.params
+        const response: DataEnvelope<User> = {
+            data: await get(Number(id)),
+            isSuccess: true,
+        }
+        res.send(response)
+    })
 
-export default router
+    .post("/", async (req, res) => {
+        const newUser = await create(req.body)
+        const response: DataEnvelope<User> = {
+            data: newUser,
+            isSuccess: true,
+        }
+        res.send(response)
+    })
+    .patch("/:id", async (req, res) => {
+        const { id } = req.params
+        const updatedUser = await update(Number(id), req.body)
+        const response: DataEnvelope<User> = {
+            data: updatedUser as User,
+            isSuccess: true,
+        }
+        res.send(response)
+    })
+    .delete("/:id", async (req, res) => {
+        const { id } = req.params
+        const removedUser = await remove(Number(id))
+        const response: DataEnvelope<User> = {
+            data: removedUser,
+            isSuccess: true,
+            message: `User ${removedUser.firstName} ${removedUser.lastName} has been removed.`,
+        }
+        res.send(response)
+    })
+
+export default app

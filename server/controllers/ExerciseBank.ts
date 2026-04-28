@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { add, get, getAll, remove, seed, update } from "../models/ExerciseBank"
+import { getAll, get, add, update, remove, seed } from "../models/ExerciseBank"
 
 const app = Router()
 

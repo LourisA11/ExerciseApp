@@ -10,6 +10,9 @@ const SERVER = process.env.SERVER ?? "localhost"
 const STATIC_DIR = process.env.STATIC_DIR ?? "client/dist"
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? "http://localhost:5173"
 const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev-session-secret"
+import { config } from "dotenv"
+config()
+
 
 
 const app = express()

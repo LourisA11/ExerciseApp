@@ -14,14 +14,7 @@ const editType = ref('')
 const isSavingEdit = ref(false)
 const exerciseTypes = ['Strength', 'Cardio', 'Flexibility', 'Mobility', 'Balance', 'Sports']
 
-const deleteUser = (id: number) => {
-  // Not implemented, but UI ready
-  console.log(`Delete user with ID: ${id} (Admin functionality)`)
-}
 
-const editUser = (name: string) => {
-  console.log(`Edit user: ${name} (Admin functionality)`)
-}
 
 const startEditExercise = (exercise: ExerciseBankRow) => {
   editingExerciseId.value = exercise.id
@@ -205,10 +198,10 @@ onMounted(loadExerciseBank)
                   <td>{{ user.totalCalories }}</td>
                   <td>
                     <div class="buttons are-small">
-                      <button class="button is-warning is-light" @click="editUser(user.name)">
+                      <button class="button is-warning is-light">
                         <span class="icon"><i class="fas fa-edit"></i></span>
                       </button>
-                      <button class="button is-danger is-light" @click="deleteUser(user.id)">
+                      <button class="button is-danger is-light">
                         <span class="icon"><i class="fas fa-trash"></i></span>
                       </button>
                     </div>
