@@ -5,6 +5,28 @@ import AdminView from '../views/AdminView.vue'
 import SocialView from '../views/SocialView.vue'
 import StatisticsView from '../views/StatisticsView.vue'
 import UserLogin from '../views/UserLogin.vue'
+import { authState, type User } from '../store/userData'
+
+type RouteMeta = {
+  requiresAuth?: boolean
+  requiresAdmin?: boolean
+  guestOnly?: boolean
+}
+
+const SESSION_KEY = 'currentUser'
+
+function restoreUserFromSession() {
+  if (authState.currentUser) return
+
+  const raw = sessionStorage.getItem(SESSION_KEY)
+  if (!raw) return
+
+  try {
+    authState.currentUser = JSON.parse(raw) as User
+  } catch {
+    sessionStorage.removeItem(SESSION_KEY)
+  }
+}
 
 // 1. Define routes FIRST
 const routes = [
