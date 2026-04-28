@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { authState } from '../store/userData'
 import { addUserExercise } from '../services/userExerciseService'
 import { getExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
+import { getUsersByEmail } from '../services/usersService'
 
 const emit = defineEmits<{
   added: []
@@ -58,10 +59,10 @@ const loadExercises = async () => {
 
 const submitExercise = async () => {
   const user = authState.currentUser as Record<string, unknown> | null
-  const userId = user?.dbId ?? user?.id
+  const userEmail = typeof user?.email === 'string' ? user.email : ''
 
-  if (!userId) {
-    errorMessage.value = 'You must be logged in.'
+  if (!userEmail) {
+    errorMessage.value = 'You must be logged in with a valid email.'
     successMessage.value = ''
     return
   }
@@ -77,6 +78,16 @@ const submitExercise = async () => {
   successMessage.value = ''
 
   try {
+    const identityResponse = await getUsersByEmail(userEmail)
+    if (!identityResponse.isSuccess || !identityResponse.data.length) {
+      errorMessage.value =
+        identityResponse.message ??
+        `No Supabase Auth user found for email ${userEmail}.`
+      return
+    }
+
+    const userId = identityResponse.data[0]!.id
+
     const response = await addUserExercise({
       user_id: String(userId),
       exercise_id: selectedExerciseId.value,

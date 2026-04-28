@@ -16,6 +16,7 @@ export interface Stats {
 
 export interface User {
   id: number;
+  dbId: string;
   email: string;
   name: string;
   password?: string;
@@ -28,6 +29,7 @@ export interface User {
 export const mockUsers: User[] = [
   { 
     id: 1, 
+    dbId: '2d4c0f1e-4d7f-4c2c-9a8c-111111111111',
     email: 'admin@test.com', 
     role: 'admin', 
     name: 'System Admin',
@@ -41,6 +43,7 @@ export const mockUsers: User[] = [
   },
   { 
     id: 2, 
+    dbId: '2d4c0f1e-4d7f-4c2c-9a8c-222222222222',
     email: 'user@test.com', 
     role: 'user', 
     name: 'Jane Doe',
@@ -54,6 +57,7 @@ export const mockUsers: User[] = [
   },
   { 
     id: 3, 
+    dbId: '2d4c0f1e-4d7f-4c2c-9a8c-333333333333',
     email: 'guest@test.com', 
     role: 'user', 
     name: 'Guest User',
