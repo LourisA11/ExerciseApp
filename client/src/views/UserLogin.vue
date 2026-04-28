@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { mockUsers, authState } from '../store/userData' 
+import { mockUsers, setCurrentUser } from '../store/userData' 
 
 const isDropdownOpen = ref(false)
 
@@ -9,7 +9,7 @@ const toggleDropdown = () => {
 }
 
 const selectAccount = (user: (typeof mockUsers)[number]) => {
-  authState.currentUser = user
+  setCurrentUser(user)
   isDropdownOpen.value = false 
   
   console.log(`Logged in as ${user.name}! Now you can navigate to other pages.`)

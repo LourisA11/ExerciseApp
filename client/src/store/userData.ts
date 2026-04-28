@@ -1,5 +1,7 @@
 import { reactive } from 'vue';
 
+const SESSION_KEY = 'currentUser'
+
 export interface Activity {
   id: number;
   type: string;
@@ -70,6 +72,24 @@ export const mockUsers: User[] = [
 ];
 
 // This object is SHARED across the whole app
+function loadCurrentUserFromSession(): User | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    return raw ? (JSON.parse(raw) as User) : null
+  } catch {
+    return null
+  }
+}
+
 export const authState = reactive({
-  currentUser: null as User | null
+  currentUser: loadCurrentUserFromSession() as User | null
 });
+
+export function setCurrentUser(user: User | null) {
+  authState.currentUser = user
+  if (user) {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(user))
+  } else {
+    sessionStorage.removeItem(SESSION_KEY)
+  }
+}

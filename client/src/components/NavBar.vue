@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import { mockUsers, authState } from '../store/userData';
+import { mockUsers, authState, setCurrentUser } from '../store/userData';
 import '../assets/style.css'
 
 const isActive = ref(false);
@@ -12,7 +12,7 @@ const toggleMenu = () => {
 };
 
 const selectAccount = (user: typeof mockUsers[number]) => {
-  authState.currentUser = user;
+    setCurrentUser(user);
   isLoginDropdownActive.value = false;
   isActive.value = false; // Close the mobile menu after selecting an account
 };
@@ -73,7 +73,7 @@ const selectAccount = (user: typeof mockUsers[number]) => {
                         </div>
                         <div v-else class="navbar-item">
                             <span>Welcome, {{ authState.currentUser.name }}</span>
-                            <button class="button is-small is-danger is-light ml-2" @click="authState.currentUser = null">
+                            <button class="button is-small is-danger is-light ml-2" @click="setCurrentUser(null)">
                                 Log out
                             </button>
                         </div>

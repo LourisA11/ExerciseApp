@@ -33,6 +33,22 @@ const toNullableNumber = (value: string) => {
   return Number.isFinite(n) ? n : null
 }
 
+const getCurrentUserEmail = () => {
+  const user = authState.currentUser as Record<string, unknown> | null
+  if (typeof user?.email === 'string' && user.email.trim()) {
+    return user.email.trim()
+  }
+
+  try {
+    const raw = sessionStorage.getItem('currentUser')
+    if (!raw) return ''
+    const savedUser = JSON.parse(raw) as Record<string, unknown>
+    return typeof savedUser.email === 'string' ? savedUser.email.trim() : ''
+  } catch {
+    return ''
+  }
+}
+
 const loadExercises = async () => {
   isLoading.value = true
   errorMessage.value = ''
@@ -58,8 +74,7 @@ const loadExercises = async () => {
 }
 
 const submitExercise = async () => {
-  const user = authState.currentUser as Record<string, unknown> | null
-  const userEmail = typeof user?.email === 'string' ? user.email : ''
+  const userEmail = getCurrentUserEmail()
 
   if (!userEmail) {
     errorMessage.value = 'You must be logged in with a valid email.'

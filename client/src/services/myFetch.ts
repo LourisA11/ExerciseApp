@@ -1,7 +1,10 @@
 const API_ROOT = import.meta.env.VITE_API_ROOT ?? "http://localhost:3000/api"
 
 export async function myFetch(path: string, options?: RequestInit) {
-  const res = await fetch(`${API_ROOT}${path}`, options)
+  const res = await fetch(`${API_ROOT}${path}`, {
+    credentials: 'include',
+    ...options,
+  })
 
   const contentType = res.headers.get("content-type") ?? ""
   if (!contentType.includes("application/json")) {
@@ -21,6 +24,7 @@ export default function rest<T>(
     method: data ? 'POST' : 'GET',
 
     body: data ? JSON.stringify(data) : undefined,
+    credentials: 'include',
     ...options,
 
     headers: {
