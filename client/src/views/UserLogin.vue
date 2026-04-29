@@ -1,128 +1,109 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { mockUsers } from '../store/userData'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router' // To redirect after login
 import useSessionStore from '../store/session'
+import { api } from '../services/myFetch'
+import { type User } from '../store/userData'
 
 const sessionStore = useSessionStore()
-
+const router = useRouter()
 const isDropdownOpen = ref(false)
+const users = ref<User[]>([]) 
+const isLoading = ref(false)
 
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
+const fetchUsers = async () => {
+  isLoading.value = true
+  try {
+    // Note the change here: your API returns an object containing the array
+    const response = await api<{ data: User[] }>('/users') 
+    
+    // We need to access response.data to get the actual array of users
+    users.value = response.data || []
+    
+    console.log("Users loaded successfully:", users.value)
+  } catch (err: unknown) {
+    console.error('Fetch Error:', err)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const selectAccount = (user: (typeof mockUsers)[number]) => {
+
+const selectAccount = (user: User) => {
   sessionStore.setUser(user)
   isDropdownOpen.value = false 
-  
-  console.log(`Logged in as ${user.name}! Now you can navigate to other pages.`)
+  // Redirect to home after logging in
+  router.push('/')
 }
+
+onMounted(fetchUsers)
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="login-wrapper">
-      <button @click="toggleDropdown" class="trigger-btn">
-        <span>Login / Select Account</span>
-        <span class="chevron" :class="{ 'rotate': isDropdownOpen }">▼</span>
-      </button>
+  <div class="login-page">
+    <div class="box login-card">
+      <h1 class="title has-text-centered">Welcome Back</h1>
+      <p class="subtitle has-text-centered">Please select an account to continue</p>
 
-      <ul v-if="isDropdownOpen" class="dropdown-menu">
-        <li 
-          v-for="user in mockUsers" 
-          :key="user.id" 
-          @click="selectAccount(user)"
-          class="dropdown-item"
-        >
-          <div class="avatar">{{ user.name.charAt(0) }}</div>
-          <div class="user-details">
-            <span class="username">{{ user.name }}</span>
-            <span class="user-role">{{ user.role }}</span>
-          </div>
-        </li>
-      </ul>
+      <div class="login-wrapper">
+        <button @click="isDropdownOpen = !isDropdownOpen" class="button is-large is-fullwidth is-primary" :disabled="isLoading">
+          <span>{{ isLoading ? 'Connecting...' : 'Select Account' }}</span>
+          <span class="icon"><i class="fas fa-chevron-down"></i></span>
+        </button>
+
+        <ul v-if="isDropdownOpen" class="custom-dropdown">
+          <li v-for="user in users" :key="user.id" @click="selectAccount(user)" class="custom-item">
+            <div class="user-avatar">{{ user.firstName[0] }}</div>
+            <div class="user-info">
+              <span class="is-weight-bold">{{ user.firstName }} {{ user.lastName }}</span>
+              <small>{{ user.role }}</small>
+            </div>
+          </li>
+          <li v-if="users.length === 0 && !isLoading" class="p-4 has-text-centered">
+            <p>No users found in database.</p>
+            <button class="button is-small is-light mt-2" @click="fetchUsers">Retry</button>
+          </li>
+        </ul>
+       <li v-for="user in users" :key="user.id" @click="selectAccount(user)">
+  {{ user.firstName }} {{ user.lastName }}
+</li>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-
-.page-container {
+.login-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f4f6f9;
+  height: 80vh;
 }
-
-
-.login-wrapper {
-  position: relative;
+.login-card {
   width: 100%;
-  max-width: 350px;
+  max-width: 400px;
 }
-
-.trigger-btn {
-  width: 100%;
-  padding: 1rem;
-  background-color: #4f46e5; /* Indigo */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.chevron {
-  font-size: 0.8rem;
-  transition: transform 0.2s ease;
-}
-
-.rotate {
-  transform: rotate(180deg);
-}
-
-
-.dropdown-menu {
+.login-wrapper { position: relative; }
+.custom-dropdown {
   position: absolute;
-  top: calc(100% + 8px); 
+  top: 105%;
   left: 0;
   width: 100%;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  z-index: 50; 
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
+  border: 1px solid #dbdbdb;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 50;
 }
-
-.dropdown-item {
+.custom-item {
   display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 12px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
 }
-
-.dropdown-item:last-child {
-  border-bottom: none;
-}
-
-.dropdown-item:hover {
-  background-color: #f8fafc;
-}
-
-.avatar {
-  background-color: #6366f1;
+.custom-item:hover { background: #f5f5f5; }
+.user-avatar {
+  background: #485fc7;
   color: white;
   width: 32px;
   height: 32px;
@@ -130,26 +111,7 @@ const selectAccount = (user: (typeof mockUsers)[number]) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: bold;
-  margin-right: 0.75rem;
-  font-size: 0.85rem;
+  margin-right: 12px;
 }
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.username {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 0.95rem;
-}
-
-.user-role {
-  font-size: 0.75rem;
-  color: #64748b;
-  text-transform: capitalize;
-}
+.user-info { display: flex; flex-direction: column; }
 </style>

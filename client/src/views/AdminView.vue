@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { mockUsers, authState } from '../store/userData'
+import { authState } from '../store/userData'
 import NewExercise from '../components/NewExercise.vue'
 import { getExerciseBank, updateExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
+import { api } from '../services/myFetch' // Import your API helper
+import type { User } from '../store/userData' // Import the User interface we made
 
+// Exercises State
 const exerciseBank = ref<ExerciseBankRow[]>([])
 const isLoadingExercises = ref(false)
 const exerciseErrorMessage = ref('')
@@ -14,7 +17,21 @@ const editType = ref('')
 const isSavingEdit = ref(false)
 const exerciseTypes = ['Strength', 'Cardio', 'Flexibility', 'Mobility', 'Balance', 'Sports']
 
+// Users State (Real DB Users)
+const dbUsers = ref<User[]>([])
+const isLoadingUsers = ref(false)
 
+const loadUsers = async () => {
+  isLoadingUsers.value = true
+  try {
+    const data = await api<User[]>('/users')
+    dbUsers.value = data || []
+  } catch (error) {
+    console.error('Failed to load users:', error)
+  } finally {
+    isLoadingUsers.value = false
+  }
+}
 
 const startEditExercise = (exercise: ExerciseBankRow) => {
   editingExerciseId.value = exercise.id
@@ -85,22 +102,16 @@ const loadExerciseBank = async () => {
   }
 }
 
-onMounted(loadExerciseBank)
+onMounted(() => {
+  loadExerciseBank()
+  loadUsers() // Fetch real users on mount
+})
 </script>
 
 <template>
   <div class="section">
     <div class="container">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <h1 class="title">Admin Dashboard</h1>
-          </div>
-        </div>
-        <div class="level-right">
-          
-        </div>
-      </div>
+      <h1 class="title">Admin Dashboard</h1>
 
       <div v-if="authState.currentUser?.role !== 'admin'" class="notification is-danger">
         Access Denied. You must be an administrator to view this page.
@@ -111,10 +122,6 @@ onMounted(loadExerciseBank)
 
         <div class="box">
           <h2 class="title is-5">Exercise Bank</h2>
-          <p v-if="isLoadingExercises" class="has-text-grey">Loading exercises...</p>
-          <p v-if="exerciseErrorMessage" class="has-text-danger">{{ exerciseErrorMessage }}</p>
-          <p v-if="exerciseSuccessMessage" class="has-text-success">{{ exerciseSuccessMessage }}</p>
-
           <table v-if="exerciseBank.length" class="table is-fullwidth is-striped is-hoverable">
             <thead>
               <tr>
@@ -126,95 +133,69 @@ onMounted(loadExerciseBank)
             <tbody>
               <tr v-for="exercise in exerciseBank" :key="exercise.id">
                 <td>
-                  <template v-if="editingExerciseId === exercise.id">
-                    <input v-model="editName" class="input" type="text" />
-                  </template>
-                  <template v-else>
-                    {{ exercise.name }}
-                  </template>
+                  <input v-if="editingExerciseId === exercise.id" v-model="editName" class="input" type="text" />
+                  <span v-else>{{ exercise.name }}</span>
                 </td>
                 <td>
-                  <template v-if="editingExerciseId === exercise.id">
-                    <div class="select is-fullwidth">
-                      <select v-model="editType">
-                        <option v-for="exerciseType in exerciseTypes" :key="exerciseType" :value="exerciseType">
-                          {{ exerciseType }}
-                        </option>
-                      </select>
-                    </div>
-                  </template>
-                  <template v-else>
-                    {{ exercise.type }}
-                  </template>
+                  <div v-if="editingExerciseId === exercise.id" class="select is-fullwidth">
+                    <select v-model="editType">
+                      <option v-for="t in exerciseTypes" :key="t" :value="t">{{ t }}</option>
+                    </select>
+                  </div>
+                  <span v-else>{{ exercise.type }}</span>
                 </td>
                 <td>
                   <div class="buttons are-small">
                     <template v-if="editingExerciseId === exercise.id">
-                      <button class="button is-primary is-light" :disabled="isSavingEdit" @click="saveEditExercise(exercise.id)">
-                        Save
-                      </button>
-                      <button class="button is-light" :disabled="isSavingEdit" @click="cancelEditExercise">
-                        Cancel
-                      </button>
+                      <button class="button is-primary" @click="saveEditExercise(exercise.id)">Save</button>
+                      <button class="button is-light" @click="cancelEditExercise">Cancel</button>
                     </template>
-                    <template v-else>
-                      <button class="button is-info is-light" @click="startEditExercise(exercise)">
-                        <span class="icon"><i class="fas fa-edit"></i></span>
-                      </button>
-                    </template>
+                    <button v-else class="button is-info is-light" @click="startEditExercise(exercise)">
+                      <span class="icon"><i class="fas fa-edit"></i></span>
+                    </button>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
-
-          <p v-else-if="!isLoadingExercises" class="has-text-grey">No exercises found in the database.</p>
         </div>
 
         <div class="box">
-          <div class="table-container admin-table-container">
+          <h2 class="title is-5">User Management</h2>
+          <div class="table-container">
             <table class="table is-fullwidth is-striped is-hoverable">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
                   <th>Role</th>
-                  <th>Activities</th>
-                  <th>Calories</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="user in mockUsers" :key="user.id">
-                  <td>{{ user.id }}</td>
-                  <td><strong>{{ user.name }}</strong></td>
+                <tr v-for="user in dbUsers" :key="user.id">
+                  <td>{{ user.firstName }}</td>
+                  <td>{{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
                   <td>
-                    <span class="tag user-tag" :class="user.role === 'admin' ? 'is-danger' : 'is-info'">
+                    <span class="tag" :class="user.role === 'admin' ? 'is-danger' : 'is-info'">
                       {{ user.role }}
                     </span>
                   </td>
-
-                  <td>{{ user.activities.length }}</td>
-                  <td>{{ user.totalCalories }}</td>
                   <td>
                     <div class="buttons are-small">
-                      <button class="button is-warning is-light">
-                        <span class="icon"><i class="fas fa-edit"></i></span>
-                      </button>
-                      <button class="button is-danger is-light">
-                        <span class="icon"><i class="fas fa-trash"></i></span>
-                      </button>
+                      <button class="button is-warning is-light"><i class="fas fa-edit"></i></button>
+                      <button class="button is-danger is-light"><i class="fas fa-trash"></i></button>
                     </div>
                   </td>
                 </tr>
               </tbody>
             </table>
+            <p v-if="isLoadingUsers" class="has-text-grey has-text-centered">Syncing users from database...</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-</style>
