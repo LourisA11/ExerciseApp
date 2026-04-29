@@ -35,7 +35,8 @@ const routes = [
   { path: '/admin', name: 'admin', component: AdminView },
   { path: '/social', name: 'social', component: SocialView },
   { path: '/statistics', name: 'statistics', component: StatisticsView },
-  { path: '/sign-up', name: 'sign-up', component: UserLogin }
+  { path: '/login', name: 'login', component: UserLogin }
+  
 ]
 
 // 2. Pass them into the router

@@ -1,23 +1,41 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
-import { mockUsers, authState } from '../store/userData';
+import { authState } from '../store/userData';
 import useSessionStore from '../store/session';
+import { api } from '../services/myFetch';
+import type { User } from '../store/userData';
 import '../assets/style.css'
 
 const sessionStore = useSessionStore();
-const isActive = ref(false);
-const isLoginDropdownActive = ref(false);
+const isActive = ref(false); // Mobile burger menu
+const isLoginDropdownActive = ref(false); // Login dropdown
+const dbUsers = ref<User[]>([]);
 
 const toggleMenu = () => {
     isActive.value = !isActive.value;
 };
 
-const selectAccount = (user: typeof mockUsers[number]) => {
-    sessionStore.setUser(user);
-  isLoginDropdownActive.value = false;
-  isActive.value = false; // Close the mobile menu after selecting an account
+const toggleLogin = () => {
+    isLoginDropdownActive.value = !isLoginDropdownActive.value;
 };
+
+const selectAccount = (user: User) => {
+    sessionStore.setUser(user);
+    isLoginDropdownActive.value = false;
+    isActive.value = false;
+};
+
+const fetchUsers = async () => {
+    try {
+        const data = await api<User[]>('/users');
+        dbUsers.value = data || [];
+    } catch (err) {
+        console.error('Navbar Login Error:', err);
+    }
+};
+
+onMounted(fetchUsers);
 </script>
 
 <template>
@@ -30,9 +48,7 @@ const selectAccount = (user: typeof mockUsers[number]) => {
                     </span>
                 </RouterLink>
 
-                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
-                   @click="toggleMenu" :class="{ 'is-active': isActive }"
-                   data-target="navbarBasicExample">
+                <a role="button" class="navbar-burger" @click="toggleMenu" :class="{ 'is-active': isActive }">
                     <span aria-hidden="true"></span>
                     <span aria-hidden="true"></span>
                     <span aria-hidden="true"></span>
@@ -40,53 +56,42 @@ const selectAccount = (user: typeof mockUsers[number]) => {
                 </a>
             </div>
 
-            <div id="navbarBasicExample" class="navbar-menu" :class="{ 'is-active': isActive }">
+            <div class="navbar-menu" :class="{ 'is-active': isActive }">
                 <div class="navbar-start">
-                    <RouterLink to="/" active-class="is-active" class="navbar-item" @click="isActive = false">
-                        Home
-                    </RouterLink>
-
-                    <RouterLink to="/Activities" active-class="is-active" class="navbar-item" @click="isActive = false">
-                        Activities
-                    </RouterLink>
-
-                    <RouterLink to="/Statistics" active-class="is-active" class="navbar-item" @click="isActive = false">
-                        Stats
-                    </RouterLink>
-
-                    <RouterLink to="/Social" active-class="is-active" class="navbar-item" @click="isActive = false">
-                        Social
-                    </RouterLink>
-
-                    <RouterLink v-if="authState.currentUser?.role === 'admin'" to="/Admin" active-class="is-active" class="navbar-item" @click="isActive = false">
-                        Admin
-                    </RouterLink>
+                    <RouterLink to="/" class="navbar-item">Home</RouterLink>
+                    <RouterLink to="/Activities" class="navbar-item">Activities</RouterLink>
+                    <RouterLink to="/Statistics" class="navbar-item">Stats</RouterLink>
+                    <RouterLink to="/Social" class="navbar-item">Social</RouterLink>
+                    <RouterLink v-if="authState.currentUser?.role === 'admin'" to="/Admin" class="navbar-item">Admin</RouterLink>
                 </div>
 
                 <div class="navbar-end">
                     <div class="navbar-item has-dropdown is-right" :class="{ 'is-active': isLoginDropdownActive }">
-                        <div class="buttons" v-if="!authState.currentUser">
-                            <RouterLink to="/sign-up" active-class="is-active" class="button is-primary">
-                                <strong>Sign up</strong>
-                            </RouterLink>
-                            <a class="button is-light" @click="isLoginDropdownActive = !isLoginDropdownActive">
+                        
+                        <div v-if="!authState.currentUser" class="buttons">
+                            <a class="button is-light" @click="toggleLogin">
                                 Log in
                             </a>
                         </div>
+
                         <div v-else class="navbar-item">
-                            <span>Welcome, {{ authState.currentUser.name }}</span>
-                            <button class="button is-small is-danger is-light ml-2" @click="sessionStore.clearUser()">
+                            <span class="has-text-white mr-2">Hi, {{ authState.currentUser.firstName }}</span>
+                            <button class="button is-small is-danger is-light" @click="sessionStore.clearUser()">
                                 Log out
                             </button>
                         </div>
 
                         <div class="navbar-dropdown" v-if="!authState.currentUser">
-                            <a v-for="user in mockUsers" 
+                            <a v-for="user in dbUsers" 
                                :key="user.id" 
                                class="navbar-item" 
                                @click="selectAccount(user)">
-                                {{ user.name }} ({{ user.role }})
+                                {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
                             </a>
+                            <hr class="navbar-divider">
+                            <div v-if="dbUsers.length === 0" class="navbar-item has-text-grey">
+                                No users in DB
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -94,6 +99,3 @@ const selectAccount = (user: typeof mockUsers[number]) => {
         </div>
     </nav>
 </template>
-
-<style scoped>
-</style>

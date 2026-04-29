@@ -1,38 +1,49 @@
 import type { User } from "../types"
-import data1 from "../data/users.json"
 import { PagingRequest } from "../types/dataEnvelope"
 import { connect } from "./supabase"
 
-type ItemType = User
-const data = {
-    ...data1,
-    items: data1.users,
-}
+/**
+ * Get all users from Supabase with Paging, Sorting, and Search
+ */
+export async function getAll(params: PagingRequest) {
+    const supabase = connect();
+    
+    // 1. Start the query on the "Users" table
+    let query = supabase
+        .from("Users")
+        .select("*", { count: "exact" });
 
-export function getAll(params: PagingRequest) {
-    let list = data.items as ItemType[]
-    const count = list.length
-
+    // 2. Handle Search (First Name + Last Name)
     if (params?.search) {
-        const search = params.search.toLowerCase()
-        list = list.filter((item) =>
-            `${item.firstName} ${item.lastName}`.toLowerCase().includes(search),
-        )
+        // Supabase uses 'ilike' for case-insensitive search
+        // This checks if the search string exists in either name column
+        query = query.or(`firstName.ilike.%${params.search}%,lastName.ilike.%${params.search}%`);
     }
-   if (params?.sortBy) {
-        list = list.sort((a, b) => {
-            const aVal = a[params.sortBy as keyof ItemType]
-            const bVal = b[params.sortBy as keyof ItemType]
-            const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0
-            return params.descending ? -comparison : comparison
-        })
-    }
-    const page = params?.page || 1
-    const pageSize = params?.pageSize || 10
-    const start = (page - 1) * pageSize
-    list = list.slice(start, start + pageSize)
 
-    return { list, count }
+    // 3. Handle Sorting
+    if (params?.sortBy) {
+        query = query.order(params.sortBy, { ascending: !params.descending });
+    } else {
+        query = query.order("firstName", { ascending: true });
+    }
+
+    // 4. Handle Paging
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data, count, error } = await query.range(from, to);
+
+    if (error) {
+        console.error("Supabase Fetch Error:", error.message);
+        return { list: [], count: 0 };
+    }
+
+    return { 
+        list: data as User[], 
+        count: count || 0 
+    };
 }
 
 /**
@@ -58,39 +69,17 @@ export async function update(id: string, payload: Record<string, unknown>) {
     isSuccess: !error,
     message: error?.message,
     data: data ?? null,
-}
-}
-
-// export function update(id: number, user: Partial<ItemType>) {
-//     const index = data.items.findIndex((u) => u.id === id)
-//     if (index === -1) {
-//         const error = { status: 404, message: "ItemType not found" }
-//         throw error
-//     }
-//     const updatedItemType = {
-//         ...data.items[index],
-//         ...user,
-//     }
-//     data.items[index] = updatedItemType as any
-//     return updatedItemType
-// }
-
-export function remove(id: number) {
-    const index = data.items.findIndex((u) => u.id === id)
-    if (index === -1) {
-        const error = { status: 404, message: "ItemType not found" }
-        throw error
-    }
-    const removedItemType = data.items.splice(index, 1)[0]
-    return removedItemType as ItemType
+  }
 }
 
-export function get (id: number) {
-    const itemType = data.items.find((u) => u.id === id)
-    if (!itemType) {
-        const error = { status: 404, message: "ItemType not found" }
-        throw error
-    }
-    return itemType as ItemType
+/**
+ * Delete User by id
+ */
+export async function remove(id: string) {
+    const { data, error } = await connect()
+        .from("Users")
+        .delete()
+        .eq("id", id);
+        
+    return { isSuccess: !error, message: error?.message };
 }
-
