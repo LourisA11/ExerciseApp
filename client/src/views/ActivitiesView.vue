@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { authState } from '../store/userData'
-import { activityStore } from '../store/UserActivity'
+import { useUserActivityStore } from '../store/UserActivity'
 import AddNewExercise from '../components/AddNewExercise.vue'
 
+const activityStore = useUserActivityStore() 
+
 onMounted(async () => {
-  // Only fetch the bank if it's empty to save bandwidth
-  if (activityStore.exerciseBank.value.length === 0) {
+  if (activityStore.loadExerciseBank) {
     await activityStore.loadExerciseBank()
   }
   await activityStore.loadActivities()
@@ -20,15 +21,15 @@ onMounted(async () => {
 
       <AddNewExercise @added="activityStore.loadActivities" />
 
-      <p v-if="activityStore.errorMessage.value" class="has-text-danger mt-3">
-        {{ activityStore.errorMessage.value }}
+      <p v-if="activityStore.error" class="has-text-danger mt-3">
+        {{ activityStore.error }}
       </p>
 
-      <div v-if="activityStore.isLoading.value" class="has-text-centered mt-5">
+      <div v-if="activityStore.loading" class="has-text-centered mt-5">
         <button class="button is-loading is-text">Loading...</button>
       </div>
 
-      <table v-else-if="activityStore.activities.value.length" class="table is-fullwidth mt-4">
+      <table v-else-if="activityStore.activities.length" class="table is-fullwidth mt-4">
         <thead>
           <tr>
             <th>Exercise</th>
@@ -37,13 +38,13 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="a in activityStore.activities.value" :key="a.id">
-            <td>{{ activityStore.getExerciseLabel(a.exercise_id) }}</td>
-            <td>{{ new Date(a.created_at).toLocaleDateString() }}</td>
+          <tr v-for="a in activityStore.activities" :key="a.id">
+            <td>{{ activityStore.getExerciseLabel(a.id) }}</td>
+            <td>{{ new Date(a.createdAt).toLocaleDateString() }}</td>
             <td>
               <button 
                 class="button is-small is-danger is-light" 
-                @click="activityStore.deleteActivity(a.id)"
+                @click="activityStore.removeActivity(a.id)"
               >
                 Delete
               </button>

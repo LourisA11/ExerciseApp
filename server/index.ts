@@ -4,6 +4,7 @@ import path from "path"
 import usersController from "./controllers/users.js"
 import userExerciseController from "./controllers/UserExercise.js"
 import exerciseBankController from "./controllers/ExerciseBank.js"
+import userActivitiesController from './controllers/userActivities';
 
 const PORT = process.env.PORT ?? 3000
 const SERVER = process.env.SERVER ?? "localhost"
@@ -57,6 +58,7 @@ app.use(express.static(path.join(__dirname, "../client/dist")))
   .use("/api/users", usersController)
     .use("/api/user-exercises", userExerciseController)
     .use("/api/exercise-bank", exerciseBankController)
+    .use('/api/user-activities', userActivitiesController);
 
 // Handle SPA routing - send all other requests to index.html
 app.all('/{*any}', (req, res) => {

@@ -1,58 +1,90 @@
+import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getUserExercises, deleteUserExercise, type UserExerciseRow } from '../services/userExerciseService'
-import { getExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
+import {
+  getUserActivities,
+  getActivitiesByUser,
+  createUserActivity,
+  deleteUserActivity,
+  type UserActivity,
+} from '../services/UserActivity'
 
-// We use a plain object with refs for a simple, effective store
-export const activityStore = {
-  activities: ref<UserExerciseRow[]>([]),
-  exerciseBank: ref<ExerciseBankRow[]>([]),
-  isLoading: ref(false),
-  errorMessage: ref(''),
-
-  async loadExerciseBank() {
-    try {
-      const response = await getExerciseBank()
-      if (response.isSuccess) {
-        this.exerciseBank.value = response.data ?? []
-      }
-    } catch {
-      this.exerciseBank.value = []
-    }
-  },
-
-  async loadActivities() {
-    this.isLoading.value = true
-    this.errorMessage.value = ''
-    try {
-      const response = await getUserExercises()
-      if (response.isSuccess) {
-        this.activities.value = response.data ?? []
-      } else {
-        this.errorMessage.value = response.message ?? 'Failed to load activities.'
-      }
-    } catch (error) {
-      this.errorMessage.value = 'An unexpected error occurred.'
-    } finally {
-      this.isLoading.value = false
-    }
-  },
-
-  async deleteActivity(id: number) {
-    try {
-      const response = await deleteUserExercise(id)
-      if (response.isSuccess) {
-        await this.loadActivities() // Refresh list after delete
-      } else {
-        this.errorMessage.value = response.message ?? 'Delete failed.'
-      }
-    } catch {
-      this.errorMessage.value = 'Error deleting activity.'
-    }
-  },
-
-  getExerciseLabel(exerciseId: string | null) {
-    if (!exerciseId) return 'Unknown exercise'
-    const exercise = this.exerciseBank.value.find((item) => item.id === exerciseId)
-    return exercise ? `${exercise.name} (${exercise.type})` : 'Loading...'
-  }
+export interface Exercise {
+  id: string | number;
+  name: string;
+  category?: string;
 }
+
+export const useUserActivityStore = defineStore('userActivity', () => {
+  const activities = ref<UserActivity[]>([])
+const exerciseBank = ref<Exercise[]>([]);
+  const count = ref(0)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  async function loadActivities(params?: { page?: number; pageSize?: number; search?: string }) {
+    loading.value = true
+    error.value = null
+    try {
+      const res = await getUserActivities(params)
+      activities.value = res.list
+      count.value = res.count
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch activities'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchByUser(userId: number) {
+    loading.value = true
+    error.value = null
+    try {
+      const res = await getActivitiesByUser(userId)
+      activities.value = res.list
+      count.value = res.count
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch user activities'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function addActivity(payload: Omit<UserActivity, 'id' | 'createdAt'>) {
+    error.value = null
+    const created = await createUserActivity(payload)
+    activities.value.unshift(created)
+    count.value += 1
+    return created
+  }
+
+  async function removeActivity(id: number) {
+    error.value = null
+    await deleteUserActivity(id)
+    activities.value = activities.value.filter((a) => a.id !== id)
+    count.value = Math.max(0, count.value - 1)
+  }
+async function loadExerciseBank() {
+     // Fetch your exercises from the database here
+     // For now, an empty array to stop the error
+     exerciseBank.value = [] 
+  }
+
+  const getExerciseLabel = (exerciseId: string | number) => {
+    const exercise = exerciseBank.value.find(e => e.id === exerciseId)
+    return exercise ? exercise.name : 'Unknown Exercise'
+  }
+  return {
+    activities,
+    count,
+    loading,
+    error,
+    loadActivities,
+    fetchByUser,
+    addActivity,
+    removeActivity,
+    loadExerciseBank,
+    getExerciseLabel
+  }
+})
+
+export default useUserActivityStore
