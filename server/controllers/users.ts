@@ -1,18 +1,24 @@
 import { Router } from "express"
-import { getAll, update, get, remove} from "../models/users"
+import { getAll, update,get, remove} from "../models/users"
 import { User, DataEnvelope, DataListEnvelope } from "../types"
+import { toCamelCase } from "../models/supabase"
 
 const app = Router()
 
 app.get("/", async (req, res) => {
     const { list, count } = await getAll(req.query)
     
-    const sanitizedUsers = list.map((x) => ({
-        ...x,
-        password: undefined,
-    }))
+    const sanitizedUsers = list.map((x) => {
+        // 1. Convert snake_case (DB) to camelCase (Frontend)
+        const camelUser = toCamelCase(x as unknown as Record<string, unknown>);
+        
+        return {
+            ...camelUser,
+            password: undefined, 
+        }
+    })
     
-    const response: DataListEnvelope<User> = {
+    const response: DataListEnvelope<any> = { 
         data: sanitizedUsers,
         isSuccess: true,
         total: count,
@@ -28,13 +34,21 @@ app.get("/", async (req, res) => {
     }
     res.send(response)
 })
-.get("/:id", async (req, res) => {
+app.get("/:id", async (req, res) => {
     const { id } = req.params
-    // Since your DB uses UUIDs (strings), we don't convert to Number anymore
-    const response: DataEnvelope<User> = {
-        data: await get(id), 
-        isSuccess: true,
+    
+    // 1. Fetch the raw data from the model
+    const rawUser = await get(id) 
+    
+    // 2. Convert to camelCase if the user exists
+    const camelUser = rawUser ? toCamelCase(rawUser as any) : null;
+
+    // 3. Set the envelope type to <User | null> so TypeScript is happy
+    const response: DataEnvelope<any> = {
+        data: camelUser, 
+        isSuccess: !!camelUser, // True if found, false if null
     }
+    
     res.send(response)
 })
 .patch("/:id", async (req, res) => {

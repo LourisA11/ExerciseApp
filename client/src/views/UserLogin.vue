@@ -64,12 +64,8 @@ onMounted(fetchUsers)
             <button class="button is-small is-light mt-2" @click="fetchUsers">Retry</button>
           </li>
         </ul>
-        <li v-for="user in users" :key="user.id" @click="selectAccount(user)" class="custom-item">
-  <div class="user-avatar">{{ user.firstName?.[0] || '?' }}</div>
-  <div class="user-info">
-    <span class="is-weight-bold">{{ user.firstName }} {{ user.lastName }}</span>
-    <small>{{ user.role }}</small>
-  </div>
+       <li v-for="user in users" :key="user.id" @click="selectAccount(user)">
+  {{ user.firstName }} {{ user.lastName }}
 </li>
       </div>
     </div>

@@ -83,3 +83,18 @@ export async function remove(id: string) {
         
     return { isSuccess: !error, message: error?.message };
 }
+
+export async function get(id: string) {
+    const { data, error } = await connect()
+        .from("Users")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+        console.error("Supabase Fetch Error:", error.message);
+        return null;
+    }
+
+    return data as User;
+}

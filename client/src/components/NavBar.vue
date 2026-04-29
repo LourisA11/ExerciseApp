@@ -28,8 +28,13 @@ const selectAccount = (user: User) => {
 
 const fetchUsers = async () => {
     try {
-        const data = await api<User[]>('/users');
-        dbUsers.value = data || [];
+        // 1. The response from the server is an object { data: User[], ... }
+        const response = await api<{ data: User[] }>('/users');
+        
+        // 2. You need to assign response.data to dbUsers.value
+        dbUsers.value = response.data || [];
+        
+        console.log('Successfully loaded users:', dbUsers.value);
     } catch (err) {
         console.error('Navbar Login Error:', err);
     }
@@ -82,12 +87,12 @@ onMounted(fetchUsers);
                         </div>
 
                         <div class="navbar-dropdown" v-if="!authState.currentUser">
-                            <a v-for="user in dbUsers" 
-                               :key="user.id" 
-                               class="navbar-item" 
-                               @click="selectAccount(user)">
-                                {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
-                            </a>
+                           <a v-for="user in dbUsers" 
+   :key="user.id" 
+   class="navbar-item" 
+   @click="selectAccount(user)">
+    {{ user.firstName || user.firstName }} {{ user.lastName || user.lastName }}({{ user.role }})
+</a>
                             <hr class="navbar-divider">
                             <div v-if="dbUsers.length === 0" class="navbar-item has-text-grey">
                                 No users in DB
