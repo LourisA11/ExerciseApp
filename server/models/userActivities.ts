@@ -19,7 +19,9 @@ export async function create(payload) {
             user_id: payload.user_id,     // Ensure these match Step A
             exercise_id: payload.exercise_id, 
             weight_lb: payload.weight_lb,
-            reps: payload.reps
+            reps: payload.reps,
+            durations_min: payload.durations_min,
+            distance: payload.distance
         }])
         .select()
         .single();

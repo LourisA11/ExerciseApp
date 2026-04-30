@@ -1,6 +1,4 @@
 import express from 'express';
-// Import your database model or connection here
-// This assumes you have a model file that handles the SQL/Logic
 import * as model from '../models/userActivities';
 const router = express.Router();
 

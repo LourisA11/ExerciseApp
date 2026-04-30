@@ -20,6 +20,7 @@ const distance = ref('')
 const showSuccess = ref(false)
 
 
+
 const selectExercise = (exerciseId: string) => {
   model.value = exerciseId
 }
@@ -64,7 +65,9 @@ await activityStore.addActivity({
   user_id: authState.currentUser.id, 
   exercise_id: model.value,     
   weight_lb: Number(weight.value), 
-  reps: Number(reps.value)        
+  reps: Number(reps.value),        
+  durations_min: Number(duration.value),
+  distance: Number(distance.value)
 })
     showSuccess.value = true
     setTimeout(() => showSuccess.value = false, 3000)
@@ -98,14 +101,26 @@ onMounted(loadExercises)
         <div class="field">
   <label class="label">Weight (lb)</label>
   <div class="control">
-    <input v-model="weight" class="input" type="number" placeholder="3">
+    <input v-model="weight" class="input" type="number">
   </div>
 </div>
 
 <div class="field">
   <label class="label">Reps</label>
   <div class="control">
-    <input v-model="reps" class="input" type="number" placeholder="3">
+    <input v-model="reps" class="input" type="number" >
+  </div>
+</div>
+<div class="field">
+  <label class="label">Duration (min)</label>
+  <div class="control">
+    <input v-model="duration" class="input" type="number">
+  </div>
+</div>
+<div class="field">
+  <label class="label">Distance (mi)</label>
+  <div class="control">
+    <input v-model="distance" class="input" type="number">
   </div>
 </div>
       </div>

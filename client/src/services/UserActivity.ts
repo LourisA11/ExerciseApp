@@ -6,7 +6,9 @@ export interface UserActivity {
   user_id: string;       
   exercise_id: string;    
   weight_lb: number | null; 
-  reps: number | null;     
+  reps: number | null;  
+  durations_min: number | null;
+  distance: number | null;   
 }
 
 export function getUserActivities(params?: { page?: number; pageSize?: number; search?: string }) {
