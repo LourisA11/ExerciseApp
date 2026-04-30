@@ -1,74 +1,45 @@
 <script setup lang="ts">
 import { authState } from '../store/userData'
+import { computed, onMounted } from 'vue'
+import { useUserActivityStore } from '../store/UserActivity'
+import { loadExercises, exerciseState } from '../store/exerciseBank' 
+import {usersState, loadUsers} from '../store/users'
+
+
+const activityStore = useUserActivityStore()
+
+const socialFeed = computed(() => {
+  return activityStore.activities.map(activity => {
+    const user = usersState.list.find(u => u.id === activity.user_id) //[cite: 11]
+    const exercise = exerciseState.list.find(e => e.id === activity.exercise_id) //[cite: 15]
+    
+    return {
+      ...activity,
+      userName: user ? `${user.firstName} ${user.lastName}` : 'Someone',
+      exerciseName: exercise ? exercise.name : 'an exercise'
+    }
+  })
+})
+
+onMounted(() => {
+  loadExercises()
+  loadUsers()
+  activityStore.loadActivities()
+})
 </script>
 
 <template>
-  <div class="section">
-    <div class="container">
-      <div v-if="authState.currentUser">
-        <h1 class="title is-2 has-text-centered mb-6">Social Feed</h1>
-        <p class="subtitle is-4 has-text-centered mb-6">See how your friends are doing!</p>
-
-        <div class="columns is-centered">
-          <div class="column is-8">
-            <div class="box border-top-primary">
-              <div class="media">
-                <div class="media-left">
-                  <figure class="image is-48x48">
-                    <div class="avatar-circle">
-                      {{ authState.currentUser.firstName?.charAt(0) }}
-                    </div>
-                  </figure>
-                </div>
-                <div class="media-content">
-                  <div class="content">
-                    <p>
-                      <strong>{{ authState.currentUser.firstName }} {{ authState.currentUser.lastName }}</strong> 
-                      <span class="tag is-info is-light ml-2">You</span>
-                      <br>
-                      <span class="has-text-grey is-size-7">Role: {{ authState.currentUser.role }}</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <hr class="my-4">
-              
-              <nav class="level is-mobile">
-                <div class="level-item has-text-centered">
-                  <div>
-                    <p class="heading">Weight</p>
-                    <p class="title is-5">{{ authState.currentUser.weight }} <small class="is-size-7">lbs</small></p>
-                  </div>
-                </div>
-                <div class="level-item has-text-centered">
-                  <div>
-                    <p class="heading">Height</p>
-                    <p class="title is-5">{{ authState.currentUser.height }} <small class="is-size-7">in</small></p>
-                  </div>
-                </div>
-                <div class="level-item has-text-centered">
-                  <div>
-                    <p class="heading">Age</p>
-                    <p class="title is-5">{{ authState.currentUser.age }}</p>
-                  </div>
-                </div>
-              </nav>
-
-              <div class="message is-light mt-4">
-                <div class="message-body is-size-7 has-text-centered">
-                  <span class="icon mr-2"><i class="fas fa-sync-alt"></i></span>
-                  Workout history for <strong>{{ authState.currentUser.firstName }}</strong> will appear here once synced from the database.
-                </div>
-              </div>
-            </div>
+  <div class="container p-4">
+    <h1 class="title">Community Feed</h1>
+    <div v-for="post in socialFeed" :key="post.id" class="box mb-4">
+      <div class="media">
+        <div class="media-content">
+          <p><strong>{{ post.userName }}</strong> completed <strong>{{ post.exerciseName }}</strong></p>
+          <p class="is-size-7 has-text-grey">{{ new Date(post.created_at).toLocaleString() }}</p>
+          <div class="mt-2 tags">
+             <span v-if="post.weight_lb" class="tag is-info is-light">{{ post.weight_lb }} lbs</span>
+             <span v-if="post.reps" class="tag is-success is-light">{{ post.reps }} reps</span>
           </div>
-        </div>
-      </div>
-
-      <div v-else class="has-text-centered py-6">
-        <div class="box has-background-light">
-          <p class="title">Please log in to view the social feed.</p>
         </div>
       </div>
     </div>
