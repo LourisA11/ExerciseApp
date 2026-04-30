@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { authState } from '../store/userData'
 import { useUserActivityStore } from '../store/UserActivity'
-import AddNewExercise from '../components/AddNewExercise.vue'
+import UserExInputForm from '@/components/UserExInputForm.vue'
 
 const activityStore = useUserActivityStore() 
+
+const myActivities = computed(() => {
+  const currentId = authState.currentUser?.id;
+  if (!currentId) return [];
+
+  return activityStore.activities.filter(a => {
+    // Supabase usually returns 'userId' or 'user_id' based on your table schema
+    const activityId = a.userId; 
+    return String(activityId) === String(currentId);
+  });
+})
 
 onMounted(async () => {
   if (activityStore.loadExerciseBank) {
@@ -12,6 +23,8 @@ onMounted(async () => {
   }
   await activityStore.loadActivities()
 })
+
+
 </script>
 
 <template>
@@ -19,7 +32,7 @@ onMounted(async () => {
     <div v-if="authState.currentUser">
       <h1 class="title">Activities</h1>
 
-      <AddNewExercise @added="activityStore.loadActivities" />
+      <UserExInputForm @added="activityStore.loadActivities" />
 
       <p v-if="activityStore.error" class="has-text-danger mt-3">
         {{ activityStore.error }}
@@ -29,7 +42,7 @@ onMounted(async () => {
         <button class="button is-loading is-text">Loading...</button>
       </div>
 
-      <table v-else-if="activityStore.activities.length" class="table is-fullwidth mt-4">
+      <table v-else-if="myActivities.length" class="table is-fullwidth mt-4">
         <thead>
           <tr>
             <th>Exercise</th>
@@ -39,7 +52,7 @@ onMounted(async () => {
         </thead>
         <tbody>
           <tr v-for="a in activityStore.activities" :key="a.id">
-            <td>{{ activityStore.getExerciseLabel(a.id) }}</td>
+            <td>{{ a.action }}</td>
             <td>{{ new Date(a.createdAt).toLocaleDateString() }}</td>
             <td>
               <button 

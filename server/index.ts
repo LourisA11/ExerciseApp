@@ -54,7 +54,7 @@ app.use(
 // Serve static files from the client/dist directory
 app.use(express.static(path.join(__dirname, "../client/dist")))
 
-    .use("/users", usersController)
+
   .use("/api/users", usersController)
     .use("/api/user-exercises", userExerciseController)
     .use("/api/exercise-bank", exerciseBankController)

@@ -1,11 +1,12 @@
 import { api } from './myFetch'
 
-export type UserActivity = {
-  id: number
-  userId: number
-  action: string
-  details?: string
-  createdAt: string
+export interface UserActivity {
+  id: number;              
+  created_at: string;    
+  user_id: string;       
+  exercise_id: string;    
+  weight_lb: number | null; 
+  reps: number | null;     
 }
 
 export function getUserActivities(params?: { page?: number; pageSize?: number; search?: string }) {
