@@ -65,3 +65,21 @@ body {
   margin-top: 1.5rem;
 }
 
+
+.heading {
+  margin-bottom: 0.5rem !important;
+  color: #7a7a7a;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+

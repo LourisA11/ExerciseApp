@@ -8,9 +8,18 @@ export interface IExercise {
 }
 
 export const exerciseState = reactive({
-  list: [] as IExercise[],
-  loading: false,
-})
+    list: [] as any[], // Must be an array
+    async load() {
+        try {
+            const response = await api('/exercise-bank');
+            // Check if response is the array itself or an object containing the array
+            this.list = Array.isArray(response) ? response : (response.data || []);
+        } catch (err) {
+            this.list = []; 
+            console.error(err);
+        }
+    }
+});
 
 export async function loadExercises() {
   exerciseState.loading = true

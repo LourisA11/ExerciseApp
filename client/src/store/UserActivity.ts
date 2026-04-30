@@ -1,58 +1,106 @@
+import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getUserExercises, deleteUserExercise, type UserExerciseRow } from '../services/userExerciseService'
-import { getExerciseBank, type ExerciseBankRow } from '../services/exerciseBankService'
+import {
+  getUserActivities,
+  getActivitiesByUser,
+  createUserActivity,
+  deleteUserActivity,
+  type UserActivity,
+} from '../services/UserActivity'
 
-// We use a plain object with refs for a simple, effective store
-export const activityStore = {
-  activities: ref<UserExerciseRow[]>([]),
-  exerciseBank: ref<ExerciseBankRow[]>([]),
-  isLoading: ref(false),
-  errorMessage: ref(''),
+export interface Exercise {
+id: number;
+  user_id: string; // Ensure this matches User[cite: 12]
+  exercise_id: string;
+  weight_lb?: number | null;
+  reps?: number | null;
+  createdAt: string;
+}
 
-  async loadExerciseBank() {
+export const useUserActivityStore = defineStore('userActivity', () => {
+  const activities = ref<UserActivity[]>([])
+const exerciseBank = ref<Exercise[]>([]);
+  const count = ref(0)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  async function loadActivities(params?: { page?: number; pageSize?: number; search?: string }) {
+    loading.value = true
     try {
-      const response = await getExerciseBank()
-      if (response.isSuccess) {
-        this.exerciseBank.value = response.data ?? []
-      }
-    } catch {
-      this.exerciseBank.value = []
-    }
-  },
-
-  async loadActivities() {
-    this.isLoading.value = true
-    this.errorMessage.value = ''
-    try {
-      const response = await getUserExercises()
-      if (response.isSuccess) {
-        this.activities.value = response.data ?? []
-      } else {
-        this.errorMessage.value = response.message ?? 'Failed to load activities.'
-      }
-    } catch (error) {
-      this.errorMessage.value = 'An unexpected error occurred.'
+      const res = await getUserActivities(params)
+      // Force a fresh assignment to trigger Vue's reactivity
+      activities.value = [...res.list] 
+      count.value = res.count
+      console.log("Store updated with:", activities.value.length, "items")
+    } catch (err) {
+      error.value = 'Failed to fetch activities'
     } finally {
-      this.isLoading.value = false
+      loading.value = false
     }
-  },
+}
 
-  async deleteActivity(id: number) {
+  async function fetchByUser(userId: number) {
+    loading.value = true
+    error.value = null
     try {
-      const response = await deleteUserExercise(id)
-      if (response.isSuccess) {
-        await this.loadActivities() // Refresh list after delete
-      } else {
-        this.errorMessage.value = response.message ?? 'Delete failed.'
-      }
-    } catch {
-      this.errorMessage.value = 'Error deleting activity.'
+      const res = await getActivitiesByUser(userId)
+      activities.value = res.list
+      count.value = res.count
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch user activities'
+    } finally {
+      loading.value = false
     }
-  },
+  }
+async function addActivity(payload: Omit<UserActivity, 'id' | 'createdAt'>) {
+    error.value = null
+    try {
+      const created = await createUserActivity(payload)
+      
+      // THIS IS THE TRIGGER: It pushes the new item into the reactive array
+      activities.value.unshift(created) 
+      
+      count.value += 1
+      return created
+    } catch (err) {
+      error.value = "Failed to save to database"
+      throw err; // Throw so the component's 'catch' block can see it
+    }
+}
 
-  getExerciseLabel(exerciseId: string | null) {
-    if (!exerciseId) return 'Unknown exercise'
-    const exercise = this.exerciseBank.value.find((item) => item.id === exerciseId)
-    return exercise ? `${exercise.name} (${exercise.type})` : 'Loading...'
+  async function removeActivity(id: number) {
+  error.value = null
+  try {
+
+    await deleteUserActivity(id) 
+    activities.value = activities.value.filter((a) => a.id !== id)
+    
+    count.value = Math.max(0, count.value - 1)
+  } catch (err) {
+    error.value = "Failed to delete activity"
   }
 }
+async function loadExerciseBank() {
+     exerciseBank.value = [] 
+  }
+
+  const getExerciseLabel = (exerciseId: string | number) => {
+    const exercise = exerciseBank.value.find(e => e.id === exerciseId)
+    return exercise ? exercise.name : 'Unknown Exercise'
+  }
+
+  return {
+    activities,
+    count,
+    loading,
+    error,
+    loadActivities,
+    fetchByUser,
+    addActivity,
+    removeActivity,
+    loadExerciseBank,
+    getExerciseLabel
+  }
+})
+
+export default useUserActivityStore

@@ -28,6 +28,7 @@ const canSubmit = computed(() => {
   return isAdmin.value && name.value.trim().length > 0 && type.value.trim().length > 0 && !isSaving.value
 })
 
+
 const submitNewExercise = async () => {
   if (!canSubmit.value) return
 
