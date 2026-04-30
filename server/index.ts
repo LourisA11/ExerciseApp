@@ -5,6 +5,7 @@ import usersController from "./controllers/users.js"
 import userExerciseController from "./controllers/UserExercise.js"
 import exerciseBankController from "./controllers/ExerciseBank.js"
 import userActivitiesController from './controllers/userActivities';
+import userShortcutsController from './controllers/userShortcuts.js'
 
 const PORT = process.env.PORT ?? 3000
 const SERVER = process.env.SERVER ?? "localhost"
@@ -18,6 +19,7 @@ config()
 
 const app = express()
 
+
 //middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin
@@ -28,6 +30,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", "true")
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS")
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, user-id")
   if (req.method === "OPTIONS") {
     res.status(204).end()
     return
@@ -55,10 +58,11 @@ app.use(
 app.use(express.static(path.join(__dirname, "../client/dist")))
 
 
-  .use("/api/users", usersController)
-    .use("/api/user-exercises", userExerciseController)
-    .use("/api/exercise-bank", exerciseBankController)
-    .use('/api/user-activities', userActivitiesController);
+    app.use("/api/users", usersController)
+    app.use("/api/user-exercises", userExerciseController)
+    app.use("/api/exercise-bank", exerciseBankController)
+    app.use('/api/user-activities', userActivitiesController)
+    app.use('/api/user-shortcuts', userShortcutsController);
 
 // Handle SPA routing - send all other requests to index.html
 app.all('/{*any}', (req, res) => {

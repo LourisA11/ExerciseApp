@@ -69,14 +69,18 @@ async function addActivity(payload: Omit<UserActivity, 'id' | 'createdAt'>) {
 }
 
   async function removeActivity(id: number) {
-    error.value = null
-    await deleteUserActivity(id)
+  error.value = null
+  try {
+
+    await deleteUserActivity(id) 
     activities.value = activities.value.filter((a) => a.id !== id)
+    
     count.value = Math.max(0, count.value - 1)
+  } catch (err) {
+    error.value = "Failed to delete activity"
   }
+}
 async function loadExerciseBank() {
-     // Fetch your exercises from the database here
-     // For now, an empty array to stop the error
      exerciseBank.value = [] 
   }
 

@@ -38,9 +38,12 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        await model.remove(id);
+        if (!id) return res.status(400).send({ message: "No ID provided" });
+        
+        await model.remove(id); //
         res.send({ isSuccess: true, message: 'Activity deleted' });
     } catch (err) {
+        console.error("Controller Delete Error:", err);
         res.status(500).send({ isSuccess: false, message: 'Failed to delete activity' });
     }
 });

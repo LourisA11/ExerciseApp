@@ -29,3 +29,16 @@ export async function create(payload) {
     if (error) throw error;
     return data;
 }
+
+export async function remove(id) {
+    const { data, error } = await conn
+        .from('UserExercise') 
+        .delete()
+        .eq('id', id); 
+
+    if (error) {
+        console.error("Supabase Delete Error:", error.message);
+        throw error;
+    }
+    return data;
+}
