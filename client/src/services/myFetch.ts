@@ -1,10 +1,15 @@
 const API_ROOT = import.meta.env.VITE_API_ROOT ?? "http://localhost:3000/api"
 
-export async function myFetch(path: string, options?: RequestInit) {
-  const res = await fetch(`${API_ROOT}${path}`, {
-    credentials: 'include',
-    ...options,
-  })
+
+export async function myFetch(path: string, options: RequestInit = {}) {
+
+    const res = await fetch(`${API_ROOT}${path}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        },
+    });
 
   const contentType = res.headers.get("content-type") ?? ""
   if (!contentType.includes("application/json")) {
@@ -48,6 +53,37 @@ export default function rest<T>(
   })
 }
 
-export function api<T>(endpoint: string, data?: unknown, options: RequestInit = {}) {
-  return rest<T>(`${API_ROOT}${endpoint}`, data, options)
+// export function api<T>(endpoint: string, data?: unknown, options: RequestInit = {}) {
+//   return rest<T>(`${API_ROOT}${endpoint}`, data, options)
+
+  export async function api<T>(path: string, data?: unknown, options: RequestInit = {}): Promise<T> {
+  const url = path.startsWith('http') ? path : `${API_ROOT}${path}`;
+  
+  options = {
+    method: data ? 'POST' : (options.method || 'GET'),
+    body: data ? JSON.stringify(data) : undefined,
+    credentials: 'include',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      // Add Centralized Authorization here
+      'user-id': localStorage.getItem('userId') || '', 
+      ...options.headers,
+    },
+  };
+
+  const res = await fetch(url, options);
+
+  // Centralized Error Handling
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const message = errorData.message || `Error ${res.status}: ${res.statusText}`;
+    
+    // UI Feedback: You could trigger a global notification store here
+    console.error("Global API Error:", message);
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<T>;
 }
+

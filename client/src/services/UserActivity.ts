@@ -11,23 +11,17 @@ export interface UserActivity {
   distance: number | null;   
 }
 
-export function getUserActivities(params?: { page?: number; pageSize?: number; search?: string }) {
-  const query = new URLSearchParams()
+export function getUserActivities(params?: { page?: number }) {
+  const qs = params?.page ? `?page=${params.page}` : '';
+  return api<{ list: UserActivity[]; count: number }>(`/user-activities${qs}`);
+}
 
-  if (params?.page) query.set('page', String(params.page))
-  if (params?.pageSize) query.set('pageSize', String(params.pageSize))
-  if (params?.search) query.set('search', params.search)
-
-  const qs = query.toString()
-  return api<{ list: UserActivity[]; count: number }>(`/user-activities${qs ? `?${qs}` : ''}`)
+export function createUserActivity(payload: Omit<UserActivity, 'id'>) {
+  return api('/user-activities', payload);
 }
 
 export function getActivitiesByUser(userId: number) {
   return api<{ list: UserActivity[]; count: number }>(`/users/${userId}/activities`)
-}
-
-export function createUserActivity(payload: Omit<UserActivity, 'id' | 'createdAt'>) {
-  return api<UserActivity>('/user-activities', payload)
 }
 
 export function deleteUserActivity(id: number) {

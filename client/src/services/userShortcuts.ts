@@ -1,6 +1,6 @@
 import { api } from "./myFetch";
 
-export async function getShortcuts(userId: string) {
+export async function getShortcuts() {
     return api('/user-shortcuts', undefined, { headers: { 'user-id': userId } });
 }
 

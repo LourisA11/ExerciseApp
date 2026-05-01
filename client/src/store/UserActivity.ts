@@ -2,105 +2,84 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
   getUserActivities,
-  getActivitiesByUser,
   createUserActivity,
   deleteUserActivity,
   type UserActivity,
 } from '../services/UserActivity'
+import { getShortcuts, saveShortcut } from '../services/userShortcuts'
 
-export interface Exercise {
-id: number;
-  user_id: string; // Ensure this matches User[cite: 12]
+// Define the Shortcut interface to avoid 'any' errors
+export interface Shortcut {
+  id: number;
+  label: string;
   exercise_id: string;
-  weight_lb?: number | null;
-  reps?: number | null;
-  createdAt: string;
+  weight_lb: number;
+  reps: number;
 }
 
 export const useUserActivityStore = defineStore('userActivity', () => {
   const activities = ref<UserActivity[]>([])
-const exerciseBank = ref<Exercise[]>([]);
+  const shortcuts = ref<Shortcut[]>([]) // Fixed initialization
   const count = ref(0)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function loadActivities(params?: { page?: number; pageSize?: number; search?: string }) {
+  async function loadActivities() {
     loading.value = true
     try {
-      const res = await getUserActivities(params)
-      // Force a fresh assignment to trigger Vue's reactivity
-      activities.value = [...res.list] 
-      count.value = res.count
-      console.log("Store updated with:", activities.value.length, "items")
-    } catch (err) {
-      error.value = 'Failed to fetch activities'
-    } finally {
-      loading.value = false
-    }
-}
-
-  async function fetchByUser(userId: number) {
-    loading.value = true
-    error.value = null
-    try {
-      const res = await getActivitiesByUser(userId)
-      activities.value = res.list
+      const res = await getUserActivities()
+      activities.value = [...res.list]
       count.value = res.count
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch user activities'
+      error.value = "Failed to load data"
     } finally {
       loading.value = false
     }
   }
-async function addActivity(payload: Omit<UserActivity, 'id' | 'createdAt'>) {
-    error.value = null
+
+  async function addActivity(payload: Omit<UserActivity, 'id' | 'created_at'>) {
     try {
-      const created = await createUserActivity(payload)
-      
-      // THIS IS THE TRIGGER: It pushes the new item into the reactive array
-      activities.value.unshift(created) 
-      
+      // Cast to any for the service call to allow omitting created_at
+      const created = await createUserActivity(payload as any)
+      activities.value.unshift(created)
       count.value += 1
       return created
     } catch (err) {
       error.value = "Failed to save to database"
-      throw err; // Throw so the component's 'catch' block can see it
+      throw err
     }
-}
+  }
 
   async function removeActivity(id: number) {
-  error.value = null
-  try {
-
-    await deleteUserActivity(id) 
-    activities.value = activities.value.filter((a) => a.id !== id)
-    
-    count.value = Math.max(0, count.value - 1)
-  } catch (err) {
-    error.value = "Failed to delete activity"
-  }
-}
-async function loadExerciseBank() {
-     exerciseBank.value = [] 
+    try {
+      await deleteUserActivity(id)
+      activities.value = activities.value.filter((a) => a.id !== id)
+      count.value = Math.max(0, count.value - 1)
+    } catch (err) {
+      error.value = "Failed to delete activity"
+    }
   }
 
-  const getExerciseLabel = (exerciseId: string | number) => {
-    const exercise = exerciseBank.value.find(e => e.id === exerciseId)
-    return exercise ? exercise.name : 'Unknown Exercise'
+  async function loadShortcuts() {
+    try {
+      const data = await getShortcuts()
+      shortcuts.value = data as Shortcut[]
+    } catch (err) {
+      error.value = "Failed to load shortcuts"
+    }
+  }
+
+  async function addShortcut(item: Shortcut) {
+    const dataToSave: Partial<Shortcut> = { ...item }
+    if (dataToSave.id > 1000000000000) {
+      delete dataToSave.id 
+    }
+    await saveShortcut(dataToSave)
+    await loadShortcuts()
   }
 
   return {
-    activities,
-    count,
-    loading,
-    error,
-    loadActivities,
-    fetchByUser,
-    addActivity,
-    removeActivity,
-    loadExerciseBank,
-    getExerciseLabel
+    activities, shortcuts, count, loading, error,
+    loadActivities, addActivity, removeActivity, loadShortcuts, addShortcut
   }
 })
-
-export default useUserActivityStore

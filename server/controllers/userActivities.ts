@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+    console.log("REQ.BODY:", req.body);
     try {
         const payload = req.body;
         
@@ -36,6 +37,7 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
+    
     try {
         const id = req.params.id;
         if (!id) return res.status(400).send({ message: "No ID provided" });

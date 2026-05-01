@@ -13,6 +13,7 @@ export async function getAll() {
 }
 
 export async function create(payload) {
+    
     const { data, error } = await conn
         .from('UserExercise') // Table name from your SQL schema
         .insert([{
@@ -23,8 +24,11 @@ export async function create(payload) {
             durations_min: payload.durations_min,
             distance: payload.distance
         }])
+
+
         .select()
         .single();
+
 
     if (error) throw error;
     return data;
