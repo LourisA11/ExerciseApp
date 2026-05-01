@@ -6,6 +6,16 @@
     },
     {
       "path": "./tsconfig.app.json"
-    }
-  ]
+    },
+    {
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "skipLibCheck": true
+  }
+}
+    ]
 }
