@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { authState } from '../store/userData'
-import { computed, onMounted } from 'vue'
 import { useUserActivityStore } from '../store/UserActivity'
 import { loadExercises, exerciseState } from '../store/exerciseBank' 
 import {usersState, loadUsers} from '../store/users'
+import { computed, onMounted, ref } from 'vue'
+import { useInfiniteScroll } from '@vueuse/core'
 
 
 const activityStore = useUserActivityStore()
+const feedContainer = ref<HTMLElement | null>(null)
 
 const socialFeed = computed(() => {
   return activityStore.activities.map(activity => {
@@ -24,50 +26,67 @@ const socialFeed = computed(() => {
 onMounted(() => {
   loadExercises()
   loadUsers()
-  activityStore.loadActivities()
+  activityStore.loadActivities(true)
 })
+useInfiniteScroll(
+  feedContainer,
+  async () => {
+    await activityStore.loadActivities()
+  },
+  {
+    distance: 200
+  }
+)
 </script>
 
 <template>
-  <div class="container p-4">
+  <div ref="feedContainer" class="container p-4 social-scroll pb-6">
+
     <h1 class="title">Community Feed</h1>
+
+    <!-- FEED -->
     <div v-for="post in socialFeed" :key="post.id" class="box mb-4">
+      <div v-if="activityStore.loading">
+        <div v-for="n in 3" :key="n" class="box mb-4">
+          <div class="skeleton-line large mb-3"></div>
+          <div class="skeleton-line mb-2"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>
+
       <div class="media">
         <div class="media-content">
-          <p><strong>{{ post.userName }}</strong> completed <strong>{{ post.exerciseName }}</strong></p>
-          <p class="is-size-7 has-text-grey">{{ new Date(post.created_at).toLocaleString() }}</p>
+          <p>
+            <strong>{{ post.userName }}</strong>
+            completed <strong>{{ post.exerciseName }}</strong>
+          </p>
+
+          <p class="is-size-7 has-text-grey">
+            {{ new Date(post.created_at).toLocaleString() }}
+          </p>
+
           <div class="mt-2 tags">
-             <span v-if="post.weight_lb" class="tag is-info is-light">{{ post.weight_lb }} lbs</span>
-             <span v-if="post.reps" class="tag is-success is-light">{{ post.reps }} reps</span>
+            <span v-if="post.weight_lb" class="tag is-info is-light">
+              {{ post.weight_lb }} lbs
+            </span>
+            <span v-if="post.reps" class="tag is-success is-light">
+              {{ post.reps }} reps
+            </span>
           </div>
         </div>
       </div>
     </div>
+
+    <div
+      v-if="!activityStore.loading && socialFeed.length >= activityStore.count"
+      class="has-text-centered p-4 has-text-grey"
+    >
+      No more activities to load
+    </div>
+  </div>
+
+  <!-- FIXED COUNTER -->
+  <div class="fixed-counter">
+    Showing {{ socialFeed.length }} of {{ activityStore.count }} activities
   </div>
 </template>
-
-<style scoped>
-.heading {
-  color: #7a7a7a;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
-}
-
-.border-top-primary {
-  border-top: 4px solid #4f46e5;
-}
-
-.avatar-circle {
-  background-color: #4f46e5;
-  color: white;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-</style>

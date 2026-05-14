@@ -3,8 +3,12 @@ import { add, get, getAll, remove, seed, update } from "../models/UserExercise"
 
 const app = Router()
 
-app.get("/", async (_req, res) => {
-    const response = await getAll()
+app.get("/", async (req, res) => {
+    const page = Number(req.query.page || 1)
+    const limit = Number(req.query.limit || 10)
+
+    const response = await getAll(page, limit)
+
     res.send(response)
 })
     .get("/:id", async (req, res) => {

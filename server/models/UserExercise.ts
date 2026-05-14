@@ -3,19 +3,42 @@ import { connect } from "./supabase"
 const conn = connect()
 const TABLE_NAME = "UserExercise"
 
+interface UserExercisePayload {
+	user_id?: string | number | null
+	exercise_id?: string | number | null
+	weight_lb?: number | null
+	reps?: number | null
+	durations_min?: number | null
+	distance?: number | null
+}
+
 /**
- * Get all UserExercise rows
+ * Get paginated UserExercise rows
  */
-export async function getAll() {
+export async function getAll(
+	page: number = 1,
+	limit: number = 10,
+) {
+	const safePage = Math.max(1, Number(page) || 1)
+	const safeLimit = Math.max(1, Number(limit) || 10)
+
+	const start = (safePage - 1) * safeLimit
+	const end = start + safeLimit - 1
+
 	const { data, error, count } = await conn
 		.from(TABLE_NAME)
-		.select("*", { count: "estimated" })
+		.select("*", { count: "exact" })
+		.order("created_at", { ascending: false })
+		.range(start, end)
 
 	return {
 		isSuccess: !error,
-		message: error?.message,
+		message: error?.message ?? null,
 		data: data ?? [],
 		total: count ?? 0,
+		page: safePage,
+		limit: safeLimit,
+		hasMore: end + 1 < (count ?? 0),
 	}
 }
 
@@ -31,7 +54,7 @@ export async function get(id: number) {
 
 	return {
 		isSuccess: !error,
-		message: error?.message,
+		message: error?.message ?? null,
 		data: data ?? null,
 	}
 }
@@ -40,7 +63,7 @@ export async function get(id: number) {
  * Add a new UserExercise row
  */
 export async function add(
-	payload: Record<string, unknown>,
+	payload: UserExercisePayload,
 ) {
 	const { data, error } = await conn
 		.from(TABLE_NAME)
@@ -59,7 +82,7 @@ export async function add(
 
 	return {
 		isSuccess: !error,
-		message: error?.message,
+		message: error?.message ?? null,
 		data: data ?? null,
 	}
 }
@@ -69,7 +92,7 @@ export async function add(
  */
 export async function update(
 	id: number,
-	payload: Record<string, unknown>,
+	payload: UserExercisePayload,
 ) {
 	const { data, error } = await conn
 		.from(TABLE_NAME)
@@ -87,7 +110,7 @@ export async function update(
 
 	return {
 		isSuccess: !error,
-		message: error?.message,
+		message: error?.message ?? null,
 		data: data ?? null,
 	}
 }
@@ -107,7 +130,7 @@ export async function remove(
 
 	return {
 		isSuccess: !error,
-		message: error?.message,
+		message: error?.message ?? null,
 		data: data ?? null,
 	}
 }
@@ -116,12 +139,13 @@ export async function remove(
  * Seed UserExercise rows
  */
 export async function seed(
-	items: Record<string, unknown>[],
+	items: UserExercisePayload[],
 ) {
 	const inserted: unknown[] = []
 
 	for (const item of items) {
 		const result = await add(item)
+
 		if (result.data) {
 			inserted.push(result.data)
 		}

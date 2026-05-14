@@ -8,6 +8,8 @@ import {
   type UserActivity,
 } from '../services/UserActivity'
 
+
+
 export interface Exercise {
 id: number;
   user_id: string; // Ensure this matches User[cite: 12]
@@ -23,20 +25,46 @@ const exerciseBank = ref<Exercise[]>([]);
   const count = ref(0)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const page = ref(1)
+const limit = 10
+const hasMore = ref(true)
 
-  async function loadActivities(params?: { page?: number; pageSize?: number; search?: string }) {
-    loading.value = true
-    try {
-      const res = await getUserActivities(params)
-      // Force a fresh assignment to trigger Vue's reactivity
-      activities.value = [...res.list] 
-      count.value = res.count
-      console.log("Store updated with:", activities.value.length, "items")
-    } catch (err) {
-      error.value = 'Failed to fetch activities'
-    } finally {
-      loading.value = false
+  async function loadActivities(reset = false) {
+  if (loading.value) return
+  if (!hasMore.value && !reset) return
+
+  loading.value = true
+
+  try {
+
+    if (reset) {
+      page.value = 1
+      activities.value = []
+      hasMore.value = true
     }
+
+    const res = await getUserActivities({
+      page: page.value,
+      pageSize: limit
+    })
+
+    if (reset) {
+      activities.value = res.list
+    } else {
+      activities.value.push(...res.list)
+    }
+
+    count.value = res.count
+
+    hasMore.value = res.hasMore
+
+    page.value++
+
+  } catch (err) {
+    error.value = 'Failed to fetch activities'
+  } finally {
+    loading.value = false
+  }
 }
 
   async function fetchByUser(userId: number) {

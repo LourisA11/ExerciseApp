@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getAll, update,get, remove} from "../models/users"
+import { getAll, update,get, remove} from "../models/Users"
 import { User, DataEnvelope, DataListEnvelope } from "../types"
 import { toCamelCase } from "../models/supabase"
 
