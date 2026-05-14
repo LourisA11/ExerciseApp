@@ -16,7 +16,7 @@ id: number;
   exercise_id: string;
   weight_lb?: number | null;
   reps?: number | null;
-  createdAt: string;
+  created_at: string;
 }
 
 export const useUserActivityStore = defineStore('userActivity', () => {
@@ -52,7 +52,11 @@ const hasMore = ref(true)
       activities.value = res.list
     } else {
       activities.value.push(...res.list)
+      activities.value.sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
     }
+  
 
     count.value = res.count
 
