@@ -28,15 +28,16 @@ const exerciseBank = ref<Exercise[]>([]);
   const page = ref(1)
 const limit = 10
 const hasMore = ref(true)
+const isFetchingMore = ref(false)
 
-  async function loadActivities(reset = false) {
-  if (loading.value) return
+ async function loadActivities(reset = false) {
+  if (loading.value || isFetchingMore.value) return
   if (!hasMore.value && !reset) return
 
-  loading.value = true
+  if (reset) loading.value = true
+  else isFetchingMore.value = true
 
   try {
-
     if (reset) {
       page.value = 1
       activities.value = []
@@ -48,26 +49,14 @@ const hasMore = ref(true)
       pageSize: limit
     })
 
-    if (reset) {
-      activities.value = res.list
-    } else {
-      activities.value.push(...res.list)
-      activities.value.sort((a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )
-    }
-  
-
+    activities.value.push(...res.list)
     count.value = res.count
-
     hasMore.value = res.hasMore
-
     page.value++
 
-  } catch (err) {
-    error.value = 'Failed to fetch activities'
   } finally {
     loading.value = false
+    isFetchingMore.value = false
   }
 }
 
@@ -131,7 +120,8 @@ async function loadExerciseBank() {
     addActivity,
     removeActivity,
     loadExerciseBank,
-    getExerciseLabel
+    getExerciseLabel,
+    isFetchingMore
   }
 })
 

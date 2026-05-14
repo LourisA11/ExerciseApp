@@ -119,3 +119,62 @@ body {
   }
 }
 
+.skeleton-card {
+  background: #0f0f0f;
+  border: 1px solid #222;
+}
+
+.skeleton-line {
+  height: 12px;
+  background: #1f1f1f;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer effect */
+.skeleton-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(400px);
+  }
+}
+
+.title-line {
+  width: 70%;
+  height: 14px;
+}
+
+.subtitle-line {
+  width: 50%;
+}
+
+.skeleton-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.skeleton-tag {
+  width: 60px;
+  height: 20px;
+  background: #1a1a1a;
+  border-radius: 999px;
+}
+

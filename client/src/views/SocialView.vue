@@ -46,14 +46,6 @@ useInfiniteScroll(
 
     <!-- FEED -->
     <div v-for="post in socialFeed" :key="post.id" class="box mb-4">
-      <div v-if="activityStore.loading">
-        <div v-for="n in 3" :key="n" class="box mb-4">
-          <div class="skeleton-line large mb-3"></div>
-          <div class="skeleton-line mb-2"></div>
-          <div class="skeleton-line short"></div>
-        </div>
-      </div>
-
       <div class="media">
         <div class="media-content">
           <p>
@@ -76,6 +68,17 @@ useInfiniteScroll(
         </div>
       </div>
     </div>
+<div v-if="activityStore.isFetchingMore" class="mb-4">
+  <div v-for="n in 2" :key="'load-' + n" class="box skeleton-card">
+    <div class="skeleton-line title-line"></div>
+    <div class="skeleton-line subtitle-line"></div>
+
+    <div class="skeleton-tags">
+      <div class="skeleton-tag"></div>
+      <div class="skeleton-tag"></div>
+    </div>
+  </div>
+</div>
 
     <div
       v-if="!activityStore.loading && socialFeed.length >= activityStore.count"
